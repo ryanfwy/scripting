@@ -32,7 +32,7 @@ export function TodayView({
       <Text
         font={12}
         fontWeight={"black"}
-        monospacedDigit={true}
+        fontDesign={"rounded"}
         foregroundStyle={"systemGray"}
       >
         {monthTrans[month]}
@@ -44,13 +44,10 @@ export function TodayView({
           hidden={!isShowCurrent()}
         >
           <Text
-            font={{ name: "Avenir-heavy", size: 16 }}
+            font={18}
             fontWeight={"black"}
+            fontDesign={"rounded"}
             monospacedDigit={true}
-            scaleEffect={{
-              x: 1.3,
-              y: 1.0
-            }}
           >
             {date}
           </Text>
