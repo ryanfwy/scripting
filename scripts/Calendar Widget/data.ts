@@ -1,4 +1,5 @@
 const expireTime = 300 * 1000
+const pagingSize = 14
 const storageKey = "widget.state.data"
 
 function storageReadOffset() {
@@ -69,10 +70,10 @@ export function fetchData({
   }
 
   if (type === "up") {
-    offset += -21
+    offset += -pagingSize
   }
   if (type === "down") {
-    offset += 21
+    offset += pagingSize
   }
   if (type === "back") {
     offset = 0
