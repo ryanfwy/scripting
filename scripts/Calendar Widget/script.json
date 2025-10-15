@@ -1,0 +1,42 @@
+{
+  "icon" : "calendar",
+  "author" : {
+    "homepage" : "https:\/\/github.com\/ryanfwy",
+    "name" : "Ryan",
+    "email" : "369694496@qq.com"
+  },
+  "runInApp" : false,
+  "version" : "1.0.0",
+  "remoteResource" : null,
+  "localizedNames" : {
+    "zh" : "日历锁屏小组件",
+    "de" : "",
+    "ja" : "",
+    "en" : "Calendar Widget",
+    "fr" : "",
+    "es" : "",
+    "pt" : "",
+    "ru" : "",
+    "it" : ""
+  },
+  "description" : "An interactive lock screen calendar widget that supports paging for browsing",
+  "color" : "rgba(71, 102, 194,1)",
+  "localizedDescriptions" : {
+    "pt" : "",
+    "de" : "",
+    "ja" : "",
+    "ru" : "",
+    "fr" : "",
+    "en" : "An interactive lock screen calendar widget that supports paging for browsing",
+    "zh" : "一个可以交互的锁屏日历小组件，支持上下翻页浏览",
+    "it" : "",
+    "es" : ""
+  },
+  "intentInputTypes" : [
+
+  ],
+  "contributors" : [
+
+  ],
+  "name" : "Calendar Widget"
+}
