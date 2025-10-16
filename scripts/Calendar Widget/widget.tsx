@@ -14,6 +14,7 @@ function WidgetView() {
     <TodayView
       month={data.month}
       date={data.date}
+      frame={{ width: 35 }}
     />
     <CalendarView
       dates={data.dates}

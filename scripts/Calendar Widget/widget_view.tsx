@@ -12,10 +12,8 @@ export function TodayView({
   month: number,
   date: number,
 }) {
-  const monthTrans = ["JAN.", "FEB.", "MAR.", "APR.", "MAY.", "JUN.", "JUL.", "AUG.", "SEP.", "OCT.", "NOV.", "DEC."]
-  return <VStack
-    alignment="center"
-  >
+  const monthTrans = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+  return <VStack alignment="center">
     <Button
       buttonStyle={"plain"}
       intent={ClickIntent("up")}
@@ -30,9 +28,8 @@ export function TodayView({
     <Spacer />
     <VStack>
       <Text
-        font={12}
+        font={14}
         fontWeight={"black"}
-        fontDesign={"rounded"}
         foregroundStyle={"systemGray"}
       >
         {monthTrans[month]}
