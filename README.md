@@ -9,7 +9,7 @@
 
 | | |
 | --- | --- |
-| ![01](images/calendar_widget_01.jpg) | ![02](images/calendar_widget_02.jpg) |
+| ![01](images/calendar_widget_01.jpg) | ![00](https://ryanfwy.github.io/scripting/assets/calendar_widget_00.mov) |
 
 一个可交互的日历锁屏小组件，可以上下翻页查看日期，以及返回当前日期。
 
