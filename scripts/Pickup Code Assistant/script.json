@@ -1,0 +1,42 @@
+{
+  "intentInputTypes" : [
+
+  ],
+  "localizedNames" : {
+    "es" : "",
+    "en" : "Pickup Code Assistant",
+    "fr" : "",
+    "pt" : "",
+    "ru" : "",
+    "zh" : "取码器小助手",
+    "ja" : "",
+    "it" : "",
+    "de" : ""
+  },
+  "runInApp" : false,
+  "icon" : "rosette",
+  "color" : "rgba(238, 92, 98,1)",
+  "contributors" : [
+
+  ],
+  "version" : "1.0.0",
+  "name" : "Pickup Code Assistant",
+  "remoteResource" : null,
+  "localizedDescriptions" : {
+    "zh" : "脚本使用大模型来充当【取码器小助手】，通过截图或照片来解析取餐信息，再通过【实时活动常】驻来展示取餐码",
+    "it" : "",
+    "fr" : "",
+    "es" : "",
+    "en" : "This script uses AI model to act as a \"Pickup Code Assistant\", which parses information through screenshots or photos, and then displays the code on the \"Live Activities\"",
+    "ja" : "",
+    "de" : "",
+    "pt" : "",
+    "ru" : ""
+  },
+  "author" : {
+    "homepage" : "https:\/\/github.com\/ryanfwy",
+    "name" : "Ryan",
+    "email" : "369694496@qq.com"
+  },
+  "description" : "This script uses AI model to act as a \"Pickup Code Assistant\", which parses information through screenshots or photos, and then displays the code on the \"Live Activities\""
+}
