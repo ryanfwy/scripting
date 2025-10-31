@@ -1,10 +1,5 @@
 import { getSetting } from "../components/setting"
 
-const prompt = (text: string) => {
-  const promptTpl = getSetting("modelPrompt")
-  return `${promptTpl}\n${text}`
-}
-
 const schema: JSONSchemaObject = {
   type: "object",
   properties: {
@@ -37,11 +32,23 @@ function validateAssistantResp(
   }
 }
 
-export async function requestAssistant(text: string) {
-  const data: Record<string, any> = await Assistant.requestStructuredData(
-    prompt(text),
-    schema
-  )
+export async function requestAssistant(input: string | UIImage) {
+  let data: Record<string, any>
+  const prompt = getSetting("modelPrompt")
+  if (typeof input === "string") {
+    data = await Assistant.requestStructuredData(
+      `${prompt}\n${input}`,
+      schema
+    )
+  } else {
+    const base64Data = input.toJPEGBase64String(0.6)
+    const base64Image = `data:image/jpeg;base64,${base64Data}`
+    data = await Assistant.requestStructuredData(
+      prompt,
+      [base64Image],
+      schema
+    )
+  }
   validateAssistantResp(data)
   return data
 }

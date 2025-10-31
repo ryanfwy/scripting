@@ -27,20 +27,20 @@ const cfgTaskList: TaskItem[] = [
       return await getPhoto(from)
     }
   },
-  {
-    id: 2,
-    title: "OCR 解析图片内容",
-    status: "idle",
-    func: async (image: UIImage) => {
-      return await parseTextFromImage(image)
-    }
-  },
+  // {
+  //   id: 2,
+  //   title: "OCR 解析图片内容",
+  //   status: "idle",
+  //   func: async (image: UIImage) => {
+  //     return await parseTextFromImage(image)
+  //   }
+  // },
   {
     id: 3,
-    title: "大模型解析返回结果",
+    title: "大模型解析结果",
     status: "idle",
-    func: async (text: string) => {
-      return await requestAssistant(text)
+    func: async (input: string | UIImage) => {
+      return await requestAssistant(input)
     }
   },
   {
