@@ -42,6 +42,7 @@ export function TaskList() {
   >
     <HStack
       padding={{ horizontal: 0 }}
+      frame={{ height: 35 * tasks.length }}
     >
       <VStack alignment={"leading"} >
         {tasks.map(task => (
@@ -66,10 +67,7 @@ export function TaskList() {
         image={photo}
         resizable={true}
         scaleToFit={true}
-        frame={{
-          maxWidth: 80,
-          maxHeight: 100
-        }}
+        frame={{ maxWidth: 80 }}
         onTapGesture={() => {
           Navigation.present({
             element: <PhotoView photo={photo} />

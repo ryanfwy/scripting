@@ -10,6 +10,7 @@ export function SettingView() {
   const [runTypeValue, setRunTypeValue] = useState(getSetting("runType"))
   const [systemColorValue, setSystemColorValue] = useState<any>(getSetting("systemColor"))
   const [modelPromptValue, setModelPromptValue] = useState<string>(getSetting("modelPrompt"))
+  const [showToast, setShowToast] = useState<boolean>(false)
 
   const colorOptions = [
     { tag: "systemGray", text: "systemGray" },
@@ -64,6 +65,7 @@ export function SettingView() {
   function updateModelPrompt(value: string) {
     saveSetting("modelPrompt", value)
     setModelPromptValue(value)
+    setShowToast(true)
     haptic("select")
   }
 
@@ -71,6 +73,7 @@ export function SettingView() {
     saveSetting("modelPrompt", null)
     const value = getSetting("modelPrompt")
     setModelPromptValue(value)
+    setShowToast(true)
     haptic("select")
   }
 
@@ -151,14 +154,18 @@ export function SettingView() {
           onChanged={setModelPromptValue}
           axis={"vertical"}
           lineLimit={{ min: 8, max: 50 }}
+          toast={{
+            isPresented: showToast,
+            onChanged: setShowToast,
+            message: "已完成",
+            position: "center",
+          }}
         />
-        <HStack>
-          <Button
-            title={"确认修改"}
-            tint={systemColorValue}
-            action={() => { updateModelPrompt(modelPromptValue) }}
-          />
-        </HStack>
+        <Button
+          title={"确认修改"}
+          tint={systemColorValue}
+          action={() => { updateModelPrompt(modelPromptValue) }}
+        />
         <Button
           title={"恢复默认"}
           tint={systemColorValue}
