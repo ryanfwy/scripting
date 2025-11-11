@@ -41,7 +41,7 @@ export async function requestAssistant(input: string | UIImage) {
       schema
     )
   } else {
-    const base64Data = input.toJPEGBase64String(0.6)
+    const base64Data = input.toJPEGBase64String(0.5)
     const base64Image = `data:image/jpeg;base64,${base64Data}`
     data = await Assistant.requestStructuredData(
       prompt,

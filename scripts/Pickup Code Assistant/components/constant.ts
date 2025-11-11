@@ -37,17 +37,14 @@ export const infoInstrucion = `
 
 ### 使用说明
 #### 执行入口
-❶ 联动 [Run Pickup Code](https://www.icloud.com/shortcuts/71ee7994d9d14293932a0c9fc7942494) 配套 Shortcuts 全自动截屏并跳转执行 ⭐️  
+❶ 联动 Shortcuts 全自动截屏并执行 [后台版](https://www.icloud.com/shortcuts/2e0709eaa10d42068fca683a776635ad) or [前台版](https://www.icloud.com/shortcuts/8f1d57435e2f461fbe52004494b79835) ⭐️  
 ❷ 也可以在控制中心设置为启动按钮，手动截图，点击快速跳转执行  
 ❸ 更可以手动启动 App 执行  
 
 #### 实时活动管理
 实时活动可以通过以下方式关闭：  
 ❶ 实时活动界面配置了完成按钮，点击后即可关闭活动 ⭐️  
-❷ 系统也提供直接在锁屏界面左滑进行关闭，操作没那么便捷   
-
-由于系统限制方式❶依赖应用后台常驻，因此建议执行完成后不要退出主应用。
-如果意外退出了应用后台，实时活动按钮可能会失效，此时需要通过方式❷进行关闭。
+❷ 系统也提供直接在锁屏界面左滑进行关闭，操作没那么便捷  
 
 ### 更多
 更多详细的使用说明和相关问题，请前往 [Github](https://github.com/ryanfwy/scripting/tree/master?tab=readme-ov-file#pickup-code-assistant) 查看。

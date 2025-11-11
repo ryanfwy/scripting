@@ -1,4 +1,4 @@
-import { useState, ShapeStyle, DynamicShapeStyle, Script } from "scripting"
+import { useState, Script } from "scripting"
 import { StartFrom, getPhoto } from "../components/main"
 import { parseTextFromImage } from "../components/ocr"
 import { requestAssistant } from "../components/assistant"
@@ -7,9 +7,8 @@ import { getSetting } from "../components/setting"
 import { haptic } from "../helper/haptic"
 import { debugWithStorage } from "../helper/debug"
 
-type TaskStatus = "idle" | "running" | "success" | "failed"
-
-type TaskItem = {
+export type TaskStatus = "idle" | "running" | "success" | "failed"
+export type TaskItem = {
   id: number,
   title: string,
   status: TaskStatus,
@@ -18,7 +17,7 @@ type TaskItem = {
 
 const photoBlank = UIImage.fromFile(`${Script.directory}/blank.png`) as UIImage
 
-const cfgTaskList: TaskItem[] = [
+const cfgTasks: TaskItem[] = [
   {
     id: 1,
     title: "读取图片文件",
@@ -49,43 +48,21 @@ const cfgTaskList: TaskItem[] = [
     status: "idle",
     func: async ({ code, seller }: { code: string, seller: string }) => {
       const builder = new ActivityBuilder()
-      builder.buildAndStartActivity({ code, seller })
+      await builder.buildAndStartActivity({ code, seller })
     }
   },
 ]
 
-const cfgStatusStyle: {
-  [key in TaskStatus]: {
-    systemName: string,
-    foregroundStyle: ShapeStyle | DynamicShapeStyle
-  }
-} = {
-    running: {
-      systemName: "play.circle.fill",
-      foregroundStyle: {
-        light: "black",
-        dark: "white",
-      }
-    },
-    success: {
-      systemName: "checkmark.circle.fill",
-      foregroundStyle: "systemGreen"
-    },
-    failed: {
-      systemName: "xmark.circle.fill",
-      foregroundStyle: "systemRed"
-    },
-    idle: {
-      systemName: "info.circle.fill",
-      foregroundStyle: "secondaryLabel"
-    }
-  }
+function debugIfNeeded(text: string) {
+  if (getSetting("isDebug") === false) return
+  debugWithStorage(text)
+}
 
-export function useTaskRunner(startFrom?: StartFrom) {
-  const [tasks, setTasks] = useState<TaskItem[]>(cfgTaskList)
+export function runTaskWithUI(startFrom?: StartFrom) {
+  const [photo, setPhoto] = useState<UIImage>(photoBlank)
+  const [tasks, setTasks] = useState<TaskItem[]>(cfgTasks)
   const [isLatestRunning, setIsLatestRunning] = useState(false)
   const [isPickRunning, setPickIsRunning] = useState(false)
-  const [photo, setPhoto] = useState<UIImage>(photoBlank)
 
   function updateTask(
     id: number,
@@ -110,11 +87,6 @@ export function useTaskRunner(startFrom?: StartFrom) {
         setPickIsRunning(status)
         break
     }
-  }
-
-  function debugIfNeeded(text: string) {
-    if (getSetting("isDebug") === false) return
-    debugWithStorage(text)
   }
 
   async function runTasks(from: StartFrom = startFrom) {
@@ -157,11 +129,32 @@ export function useTaskRunner(startFrom?: StartFrom) {
   }
 
   return {
-    tasks,
-    cfgStatusStyle,
-    isLatestRunning,
-    isPickRunning,
-    photo,
+    states: { photo, tasks, isLatestRunning, isPickRunning },
     runTasks
   }
+}
+
+export async function runTaskWithoutUI(startFrom?: StartFrom) {
+  let status = true
+  let message = ""
+  let respPrev: any = startFrom
+  for (const task of cfgTasks) {
+    debugIfNeeded(`执行任务: ${task.id}. ${task.title}`)
+    try {
+      if (respPrev) {
+        respPrev = await task.func(respPrev)
+      } else {
+        respPrev = await task.func()
+      }
+      const resp = typeof respPrev === "object" ? JSON.stringify(respPrev) : respPrev
+      debugIfNeeded(`执行结果: ${resp}`)
+    }
+    catch (e) {
+      status = false
+      message = String(e)
+      debugIfNeeded(`执行出错: ${e}`)
+      break
+    }
+  }
+  return { status, message }
 }

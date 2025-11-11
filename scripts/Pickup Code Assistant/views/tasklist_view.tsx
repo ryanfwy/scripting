@@ -1,10 +1,37 @@
-import { VStack, HStack, Text, Button, Image, Spacer, NavigationStack, Navigation, useContext } from "scripting"
+import { VStack, HStack, Text, Button, Image, Spacer, NavigationStack, Navigation, useContext, ShapeStyle, DynamicShapeStyle } from "scripting"
 import { shouldRunOnAppear, FromContext } from "../components/main"
 import { getSetting } from "../components/setting"
-import { useTaskRunner } from "../helper/task_runner"
+import { TaskStatus, runTaskWithUI } from "../helper/task_runner"
 
 // 启动立即执行状态，只执行一次
 let hasRunOnAppear = false
+
+const statusStyles: {
+  [key in TaskStatus]: {
+    systemName: string,
+    foregroundStyle: ShapeStyle | DynamicShapeStyle
+  }
+} = {
+  running: {
+    systemName: "play.circle.fill",
+    foregroundStyle: {
+      light: "black",
+      dark: "white",
+    }
+  },
+  success: {
+    systemName: "checkmark.circle.fill",
+    foregroundStyle: "systemGreen"
+  },
+  failed: {
+    systemName: "xmark.circle.fill",
+    foregroundStyle: "systemRed"
+  },
+  idle: {
+    systemName: "info.circle.fill",
+    foregroundStyle: "secondaryLabel"
+  }
+}
 
 function PhotoView({
   photo
@@ -22,14 +49,8 @@ function PhotoView({
 
 export function TaskList() {
   const from = useContext(FromContext)
-  const {
-    tasks,
-    cfgStatusStyle,
-    isLatestRunning,
-    isPickRunning,
-    photo,
-    runTasks
-  } = useTaskRunner(from)
+  const { states, runTasks } = runTaskWithUI(from)
+  const { photo, tasks, isLatestRunning, isPickRunning } = states
 
   // 启动立即执行
   return <VStack
@@ -48,13 +69,13 @@ export function TaskList() {
         {tasks.map(task => (
           <HStack key={task.id} alignment="center">
             {<Image
-              systemName={cfgStatusStyle[task.status].systemName}
+              systemName={statusStyles[task.status].systemName}
               frame={{ width: 30, height: 30 }}
-              foregroundStyle={cfgStatusStyle[task.status].foregroundStyle}
+              foregroundStyle={statusStyles[task.status].foregroundStyle}
               contentTransition="symbolEffectAutomatic"
             />}
             {<Text
-              foregroundStyle={cfgStatusStyle[task.status].foregroundStyle}
+              foregroundStyle={statusStyles[task.status].foregroundStyle}
               contentTransition="interpolate"
             >
               {task.title + (task.status === "running" ? "..." : "")}
