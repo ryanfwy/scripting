@@ -1,7 +1,7 @@
 import { Font, FontWeight, ShapeStyle, DynamicShapeStyle, Script } from "scripting"
 
 /* Info Page */
-export const headerStyle: {
+const headerStyle: {
   font: Font,
   fontWeight: FontWeight,
   foregroundStyle: ShapeStyle | DynamicShapeStyle
@@ -14,9 +14,9 @@ export const headerStyle: {
   }
 }
 
-export const scriptName = Script.metadata.localizedNames?.en || Script.metadata.localizedName
-export const infoRunFooter = `如执行失败请在设置页开启 Debug 模式，根据日志信息进行分析排查`
-export const infoInstrucion = `
+const scriptName = Script.metadata.localizedNames?.en || Script.metadata.localizedName
+const infoRunFooter = `如执行失败请在设置页开启 Debug 模式，根据日志信息进行分析排查`
+const infoInstrucion = `
 ### 介绍
 我们在线下点餐的时候常常需要凭取餐码取餐，但是这些码嵌得很深，比如各家的点餐小程序，需要频繁切换来查看取餐码，十分繁琐。
 相似的场景还可能包括线下排队取号、取快递等。
@@ -49,5 +49,16 @@ export const infoInstrucion = `
 ### 更多
 更多详细的使用说明和相关问题，请前往 [Github](https://github.com/ryanfwy/scripting/tree/master?tab=readme-ov-file#pickup-code-assistant) 查看。
 `
-export const settingPromptFooter = "如需要请自行修改 Prompt 以优化个别场景的取码效果"
-export const settingDebugFooter = "需要时开启 Debug 模式记录日志信息，主应用执行可以前往「控制台」查看，小组件等执行入口需要前往「存储管理器」查看"
+const settingModelFooter = "「使用 App 默认设置」将使用当前 App 选定的提供商和模型。如有特殊需要可手工输入，务必先在「智能助手」中完成相应 API 设置"
+const settingPromptFooter = "如需要请自行修改 Prompt 以优化个别场景的取码效果"
+const settingDebugFooter = "需要时开启 Debug 模式记录日志信息，主应用执行可以前往「控制台」查看，小组件等执行入口需要前往「存储管理器」查看"
+
+export {
+  headerStyle,
+  scriptName,
+  infoRunFooter,
+  infoInstrucion,
+  settingModelFooter,
+  settingPromptFooter,
+  settingDebugFooter,
+}
