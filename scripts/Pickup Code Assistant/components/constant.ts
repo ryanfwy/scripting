@@ -49,5 +49,6 @@ export const infoInstrucion = `
 ### 更多
 更多详细的使用说明和相关问题，请前往 [Github](https://github.com/ryanfwy/scripting/tree/master?tab=readme-ov-file#pickup-code-assistant) 查看。
 `
+export const settingModelFooter = "「使用 App 默认设置」将使用当前 App 选定的提供商和模型。如有特殊需要可手工输入，务必先在「智能助手」中完成相应 API 设置"
 export const settingPromptFooter = "如需要请自行修改 Prompt 以优化个别场景的取码效果"
 export const settingDebugFooter = "需要时开启 Debug 模式记录日志信息，主应用执行可以前往「控制台」查看，小组件等执行入口需要前往「存储管理器」查看"

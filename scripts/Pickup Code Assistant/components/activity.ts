@@ -74,14 +74,19 @@ export class ActivityBuilder {
     code: string,
     seller: string
   }) {
-    if (this.activity == null) return
-    await this.activity.start({ code, seller })
+    let status = false
+    if (this.activity == null) return status
+    status = await this.activity.start({ code, seller })
+    if (status === false) {
+      throw("startActivity: status false")
+    }
     // save activity
     const timestamp = this.timestamp
     const activityId = this.activity.activityId
     if (activityId) {
       saveActivity({ activityId, timestamp, content: { code, seller } })
     }
+    return status
   }
 
   async buildAndStartActivity({
@@ -92,6 +97,6 @@ export class ActivityBuilder {
     seller: string
   }) {
     this.buildActivity()
-    await this.startActivity({ code, seller })
+    return await this.startActivity({ code, seller })
   }
 }

@@ -1,4 +1,4 @@
-import { useState, Script } from "scripting"
+import { useObservable, Script } from "scripting"
 import { StartFrom, getPhoto } from "../components/main"
 import { parseTextFromImage } from "../components/ocr"
 import { requestAssistant } from "../components/assistant"
@@ -48,7 +48,7 @@ const cfgTasks: TaskItem[] = [
     status: "idle",
     func: async ({ code, seller }: { code: string, seller: string }) => {
       const builder = new ActivityBuilder()
-      await builder.buildAndStartActivity({ code, seller })
+      return await builder.buildAndStartActivity({ code, seller })
     }
   },
 ]
@@ -59,16 +59,16 @@ function debugIfNeeded(text: string) {
 }
 
 export function runTaskWithUI(startFrom?: StartFrom) {
-  const [photo, setPhoto] = useState<UIImage>(photoBlank)
-  const [tasks, setTasks] = useState<TaskItem[]>(cfgTasks)
-  const [isLatestRunning, setIsLatestRunning] = useState(false)
-  const [isPickRunning, setPickIsRunning] = useState(false)
+  const photo = useObservable<UIImage>(photoBlank)
+  const tasks = useObservable<TaskItem[]>(cfgTasks)
+  const isLatestRunning = useObservable(false)
+  const isPickRunning = useObservable(false)
 
   function updateTask(
     id: number,
     status: TaskStatus
   ) {
-    setTasks(prev => prev.map(t => (t.id === id ? { ...t, status } : t)))
+    tasks.setValue(tasks.value.map(t => (t.id === id ? { ...t, status } : t)))
   }
 
   function updateRunning(
@@ -77,29 +77,27 @@ export function runTaskWithUI(startFrom?: StartFrom) {
   ) {
     switch (from) {
       case "latest":
-        setIsLatestRunning(status)
+        isLatestRunning.setValue(status)
         break
       case "pick":
-        setPickIsRunning(status)
+        isPickRunning.setValue(status)
         break
       case "intent":
-        setIsLatestRunning(status)
-        setPickIsRunning(status)
+        isLatestRunning.setValue(status)
+        isPickRunning.setValue(status)
         break
     }
   }
 
   async function runTasks(from: StartFrom = startFrom) {
     // init
-    if (isLatestRunning || isPickRunning) return
+    if (isLatestRunning.value || isPickRunning.value) return
     updateRunning(from, true)
-    for (const task of tasks) {
-      updateTask(task.id, "idle")
-    }
+    tasks.setValue(tasks.value.map(t => ({ ...t, status: "idle" })))
 
     // main run
     let respPrev: any = from
-    for (const task of tasks) {
+    for (const task of tasks.value) {
       debugIfNeeded(`执行任务: ${task.id}. ${task.title}`)
       updateTask(task.id, "running")
       try {
@@ -109,7 +107,7 @@ export function runTaskWithUI(startFrom?: StartFrom) {
           respPrev = await task.func()
         }
         if (task.id === 1) {
-          setPhoto(respPrev)
+          photo.setValue(respPrev)
         }
         const resp = typeof respPrev === "object" ? JSON.stringify(respPrev) : respPrev
         debugIfNeeded(`执行结果: ${resp}`)
@@ -129,7 +127,7 @@ export function runTaskWithUI(startFrom?: StartFrom) {
   }
 
   return {
-    states: { photo, tasks, isLatestRunning, isPickRunning },
+    observes: { photo, tasks, isLatestRunning, isPickRunning },
     runTasks
   }
 }

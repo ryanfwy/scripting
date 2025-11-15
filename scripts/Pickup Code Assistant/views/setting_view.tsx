@@ -1,16 +1,21 @@
-import { Button, NavigationStack, Text, List, Section, TextField, useState, Toggle, Picker, ColorPicker, HStack } from "scripting"
-import { headerStyle, settingPromptFooter, settingDebugFooter } from "../components/constant"
+import { Button, NavigationStack, Text, List, Section, TextField, Toggle, Picker, ColorPicker, useObservable, HStack } from "scripting"
+import { headerStyle, settingModelFooter, settingPromptFooter, settingDebugFooter } from "../components/constant"
 import { getSetting, saveSetting } from "../components/setting"
 import { removeDebugStorage } from "../helper/debug"
 import { haptic } from "../helper/haptic"
 
 export function SettingView() {
-  const [isDebugEnabled, setIsDebugEnabled] = useState(getSetting("isDebug"))
-  const [isRunWhenStartedEnabled, setIsRunWhenStartedEnabled] = useState(getSetting("isRunWhenStarted"))
-  const [runTypeValue, setRunTypeValue] = useState(getSetting("runType"))
-  const [systemColorValue, setSystemColorValue] = useState<any>(getSetting("systemColor"))
-  const [modelPromptValue, setModelPromptValue] = useState<string>(getSetting("modelPrompt"))
-  const [showToast, setShowToast] = useState<boolean>(false)
+  const isRunWhenStarted = useObservable<boolean>(getSetting("isRunWhenStarted"))
+  const runType = useObservable<string>(getSetting("runType"))
+  const systemColor = useObservable<any>(getSetting("systemColor"))
+  const isModelDefault = useObservable<boolean>(getSetting("isModelDefault"))
+  const modelProvider = useObservable<any>(getSetting("modelProvider"))
+  const modelID = useObservable<string>(getSetting("modelId"))
+  const modelCheck = useObservable<boolean>(true)
+  const modelPrompt = useObservable<string>(getSetting("modelPrompt"))
+  const isDebug = useObservable<boolean>(getSetting("isDebug"))
+  const showToast = useObservable<boolean>(false)
+  const toastValue = useObservable<string>("")
 
   const colorOptions = [
     { tag: "systemGray", text: "systemGray" },
@@ -34,9 +39,16 @@ export function SettingView() {
     { tag: "pick", text: "相册挑选" }
   ]
 
+  const modelProviderOptions = [
+    { tag: "openai", text: "OpenAI" },
+    { tag: "gemini", text: "Google Gemini" },
+    { tag: "deepseek", text: "DeepSeek" },
+    { tag: "anthropic", text: "Anthropic" }
+  ]
+
   function updateIsDebug(value: boolean) {
     saveSetting("isDebug", value)
-    setIsDebugEnabled(value)
+    isDebug.setValue(value)
     if (value === false) {
       // 清除历史日志
       removeDebugStorage()
@@ -45,39 +57,95 @@ export function SettingView() {
 
   function updateIsRunWhenStarted(value: boolean) {
     saveSetting("isRunWhenStarted", value)
-    setIsRunWhenStartedEnabled(value)
+    isRunWhenStarted.setValue(value)
   }
 
   function updateRunType(value: string) {
     saveSetting("runType", value)
-    setRunTypeValue(value)
+    runType.setValue(value)
     haptic("select")
   }
 
   function updateSystemColor(value: string) {
-    setSystemColorValue(value)
-    if (value && value !== "custom") {
-      saveSetting("systemColor", value)
-      haptic("select")
-    }
+    if (value === "custom") value = "rgba(0, 0, 0, 1.00)"
+    systemColor.setValue(value)
+    saveSetting("systemColor", value)
+    haptic("select")
   }
 
-  function updateModelPrompt(value: string) {
+  function updateModelDefault(value: boolean) {
+    isModelDefault.setValue(value)
+    saveSetting("isModelDefault", value)
+  }
+
+  function updateModelProvider(value: string) {
+    modelProvider.setValue(value)
+    saveSetting("modelProvider", value)
+  }
+
+  function updateModelId(value: string) {
+    modelID.setValue(value)
+    saveSetting("modelId", value)
+  }
+
+  async function checkModelAvailable() {
+    const schema: JSONSchemaObject = {
+      type: "object",
+      properties: {
+        text: {
+          type: "string",
+          required: true,
+          description: ""
+        }
+      },
+      description: ""
+    }
+    modelCheck.setValue(false)
+    let message = ""
+    try {
+      const resp = await Assistant.requestStructuredData(
+        "请返回「检查成功！」并随机附上一段很美的句子",
+        schema,
+        {
+          provider: modelProvider.value,
+          modelId: modelID.value
+        }
+      ) as Record<string, string>
+      message = resp?.text
+    }
+    catch (e) {
+      message = String(e)
+    }
+    toastValue.setValue(message)
+    showToast.setValue(true)
+    modelCheck.setValue(true)
+    haptic("select")
+  }
+
+  function updateModelPrompt() {
+    const value = modelPrompt.value
     saveSetting("modelPrompt", value)
-    setModelPromptValue(value)
-    setShowToast(true)
+    toastValue.setValue("已完成")
+    showToast.setValue(true)
     haptic("select")
   }
 
   function resetModelPrompt() {
     saveSetting("modelPrompt", null)
     const value = getSetting("modelPrompt")
-    setModelPromptValue(value)
-    setShowToast(true)
+    modelPrompt.setValue(value)
+    toastValue.setValue("已完成")
+    showToast.setValue(true)
     haptic("select")
   }
 
-  return <NavigationStack>
+  return <NavigationStack
+    toast={{
+      isPresented: showToast,
+      message: toastValue.value,
+      position: "center",
+    }}
+  >
     <List
       navigationTitle={"Settings"}
       navigationBarTitleDisplayMode={"automatic"}
@@ -95,40 +163,101 @@ export function SettingView() {
         }
       >
         <Toggle
-          value={isRunWhenStartedEnabled}
-          onChanged={newValue => updateIsRunWhenStarted(newValue)}
+          value={isRunWhenStarted.value}
+          onChanged={updateIsRunWhenStarted}
           title={"启动后立即执行"}
-          tint={systemColorValue}
+          tint={systemColor.value}
         />
-        {isRunWhenStartedEnabled ? (
+        {isRunWhenStarted.value ? (
           <Picker
-            value={runTypeValue}
-            onChanged={(newValue: string) => updateRunType(newValue)}
+            value={runType.value}
+            onChanged={updateRunType}
             pickerStyle={"menu"}
             title={"默认执行方式"}
-            tint={systemColorValue}
+            tint={systemColor.value}
           >
             {runTypeOptions.map(type => (
-              <Text tag={type.tag}>{type.text}</Text>
+              <Text tag={type.tag}>
+                {type.text}
+              </Text>
             ))}
           </Picker>) : null}
         <Picker
-          value={systemColorValue}
-          onChanged={(newValue: string) => updateSystemColor(newValue)}
+          value={systemColor.value}
+          onChanged={updateSystemColor}
           pickerStyle={"menu"}
           title={"主题色"}
-          tint={systemColorValue}
+          tint={systemColor.value}
         >
           {colorOptions.map(color => (
-            <Text tag={color.tag}>{color.text}</Text>
+            <Text tag={color.tag}>
+              {color.text}
+            </Text>
           ))}
         </Picker>
-        {systemColorValue === 'custom' || systemColorValue.includes("rgb") ? (
+        {systemColor.value.includes("rgb") ? (
           <ColorPicker
             title="自定义"
-            value={systemColorValue.includes("rgb") ? systemColorValue : "#000000"}
+            value={systemColor.value}
             onChanged={updateSystemColor}
             supportsOpacity={false}
+          />
+        ) : null}
+      </Section>
+      <Section
+        header={
+          <Text
+            font={headerStyle.font}
+            fontWeight={headerStyle.fontWeight}
+            foregroundStyle={headerStyle.foregroundStyle}
+          >
+            {"模型配置"}
+          </Text>
+        }
+        footer={
+          <Text>
+            {settingModelFooter}
+          </Text>
+        }
+      >
+        <Toggle
+          value={isModelDefault.value}
+          onChanged={updateModelDefault}
+          title={"使用 App 默认设置"}
+          tint={systemColor.value}
+        />
+        {!isModelDefault.value ? (
+          <Picker
+            value={modelProvider.value}
+            onChanged={updateModelProvider}
+            pickerStyle={"menu"}
+            title={"提供商"}
+            tint={systemColor.value}
+          >
+            {modelProviderOptions.map(opt => (
+              <Text tag={opt.tag}>
+                {opt.text}
+              </Text>
+            ))}
+          </Picker>
+        ) : null}
+        {!isModelDefault.value ? (
+        <HStack>
+          <Text>{"模型"}</Text>
+          <TextField
+            multilineTextAlignment={"trailing"}
+            title={"如 gemini-2.0-flash"}
+            value={modelID.value}
+            onChanged={updateModelId}
+          />
+        </HStack>
+        ) : null}
+        {!isModelDefault.value ? (
+          <Button
+            title={"检查模型可用性"}
+            tint={systemColor.value}
+            disabled={!modelCheck.value}
+            action={checkModelAvailable}
           />
         ) : null}
       </Section>
@@ -150,26 +279,20 @@ export function SettingView() {
       >
         <TextField
           title={"Prompt"}
-          value={modelPromptValue}
-          onChanged={setModelPromptValue}
+          value={modelPrompt.value}
+          onChanged={val => { modelPrompt.setValue(val) }}
           axis={"vertical"}
           lineLimit={{ min: 8, max: 50 }}
-          toast={{
-            isPresented: showToast,
-            onChanged: setShowToast,
-            message: "已完成",
-            position: "center",
-          }}
         />
         <Button
           title={"确认修改"}
-          tint={systemColorValue}
-          action={() => { updateModelPrompt(modelPromptValue) }}
+          tint={systemColor.value}
+          action={updateModelPrompt}
         />
         <Button
           title={"恢复默认"}
-          tint={systemColorValue}
-          action={() => { resetModelPrompt() }}
+          tint={systemColor.value}
+          action={resetModelPrompt}
         />
       </Section>
       <Section
@@ -189,10 +312,10 @@ export function SettingView() {
         }
       >
         <Toggle
-          value={isDebugEnabled}
-          onChanged={newValue => updateIsDebug(newValue)}
+          value={isDebug.value}
+          onChanged={updateIsDebug}
           title={"开启 Debug"}
-          tint={systemColorValue}
+          tint={systemColor.value}
         />
       </Section>
     </List>
