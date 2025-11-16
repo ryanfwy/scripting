@@ -14,6 +14,16 @@
 一个可交互的日历锁屏小组件，可以上下翻页查看日期，以及返回当前日期。
 
 
+## Zen Progress Widget
+
+[点击安装](https://scripting.fun/import_scripts?urls=%5B%22https%3A%2F%2Fimarkr.com%2Fapi%2Fgithub%2Fdownload%2Fryanfwy%2Fscripting%2Ftree%2Fmaster%2Fscripts%2FZen%2520Progress%2520Widget.zip%22%5D)
+
+|     |     |
+| --- | --- |
+| ![01](images/zen_progress_widget_01.jpg) | ![00](images/zen_progress_widget_02.jpg) |
+
+一个可以交互的锁屏进度小组件，支持禅模式和多种人生进程。
+
 
 ## Pickup Code Assistant
 
