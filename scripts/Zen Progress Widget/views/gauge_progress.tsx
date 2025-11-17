@@ -21,7 +21,7 @@ function GaugeProgressTemplate({
         fontWeight={"semibold"}
         fontDesign={"rounded"}
         monospaced={true}
-        padding={{ top: 10 }}
+        padding={{ top: 0 }}
       >
         {label}
       </Text>
@@ -43,15 +43,35 @@ function GaugeProgressTemplate({
 }
 
 
+const labels: Record<string, any> = {
+  "zh": {
+    "day": "日",
+    "week": "周",
+    "month": "月",
+    "year": "年",
+    "birth": "生日",
+    "retire": "退休",
+  },
+  "en": {
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "birth": "Birth",
+    "retire": "Retire",
+  }
+}
+
+const l10n = getSetting("l10n")
 const views = [
-  GaugeProgressTemplate({ label: "Day", getRatio: getDayRatio }),
-  GaugeProgressTemplate({ label: "Week", getRatio: getWeekRatio }),
-  GaugeProgressTemplate({ label: "Month", getRatio: getMonthRatio }),
-  GaugeProgressTemplate({ label: "Year", getRatio: getYearRatio }),
+  GaugeProgressTemplate({ label: labels[l10n]["day"], getRatio: getDayRatio }),
+  GaugeProgressTemplate({ label: labels[l10n]["week"], getRatio: getWeekRatio }),
+  GaugeProgressTemplate({ label: labels[l10n]["month"], getRatio: getMonthRatio }),
+  GaugeProgressTemplate({ label: labels[l10n]["year"], getRatio: getYearRatio }),
 ]
 if (getSetting("isBirthday")) {
-  views.push(GaugeProgressTemplate({ label: "Birth", getRatio: getBirthRatio }))
-  views.push(GaugeProgressTemplate({ label: "Retire", getRatio: getRetireRatio }))
+  views.push(GaugeProgressTemplate({ label: labels[l10n]["birth"], getRatio: getBirthRatio }))
+  views.push(GaugeProgressTemplate({ label: labels[l10n]["retire"], getRatio: getRetireRatio }))
 }
 if (getSetting("isCustom")) {
   views.push(GaugeProgressTemplate({ label: getSetting("customLabel"), getRatio: getCustomRatio }))

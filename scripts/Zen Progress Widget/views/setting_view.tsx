@@ -1,7 +1,14 @@
-import { NavigationStack, Text, List, Section, Stepper, TextField, Toggle, DatePicker, useObservable, HStack, Spacer } from "scripting"
+import { NavigationStack, Text, List, Section, Stepper, TextField, Toggle, DatePicker, useObservable, HStack, Spacer, Picker } from "scripting"
 import { getSetting, saveSetting, footerZen, footerBirthday, footerCustom } from "../components/setting"
+import { keyZenTs } from "../components/constant"
+
+const l10nOptions = [
+  { tag: "zh", text: "Zh (日,月,年...)" },
+  { tag: "en", text: "En (Day,Week,Month...)" },
+]
 
 export function SettingView() {
+  const l10n = useObservable<string>(getSetting("l10n"))
   const isZen = useObservable<boolean>(getSetting("isZen"))
   const zenRoundMaxCnt = useObservable<number>(getSetting("zenRoundMaxCnt"))
   const zenRoundDurationTs = useObservable<number>(getSetting("zenRoundDurationTs") / 1000)
@@ -13,6 +20,11 @@ export function SettingView() {
   const customStartTs = useObservable<number>(getSetting("customStartTs"))
   const customEndTs = useObservable<number>(getSetting("customEndTs"))
 
+  function updateL10n(value: string) {
+    l10n.setValue(value)
+    saveSetting("l10n", value)
+  }
+
   function updateIsZen(value: boolean) {
     isZen.setValue(value)
     saveSetting("isZen", value)
@@ -20,6 +32,7 @@ export function SettingView() {
     if (value === false) {
       saveSetting("zenRoundMaxCnt", null)
       saveSetting("zenRoundDurationTs", null)
+      Storage.set(keyZenTs, 0) // reset zen ts
       zenRoundMaxCnt.setValue(getSetting("zenRoundMaxCnt"))
       zenRoundDurationTs.setValue(getSetting("zenRoundDurationTs") / 1000)
     }
@@ -95,6 +108,24 @@ export function SettingView() {
       navigationBarTitleDisplayMode={"automatic"}
       scrollDismissesKeyboard={"immediately"}
     >
+      <Section
+        header={
+          <Text>{"通用配置"}</Text>
+        }
+      >
+        <Picker
+          value={l10n.value}
+          onChanged={updateL10n}
+          pickerStyle={"menu"}
+          title={"标签语言"}
+        >
+          {l10nOptions.map(l => (
+            <Text tag={l.tag}>
+              {l.text}
+            </Text>
+          ))}
+        </Picker>
+      </Section>
       <Section
         header={
           <Text>{"禅模式"}</Text>
@@ -188,7 +219,7 @@ export function SettingView() {
             <Text>{"展示标签"}</Text>
             <TextField
               multilineTextAlignment={"trailing"}
-              title={"建议不超过6个字母或3个汉字"}
+              title={"建议不超过5个字母或2个汉字"}
               value={customLabel.value}
               onChanged={updateCustomLabel}
             />

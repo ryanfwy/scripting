@@ -7,6 +7,7 @@ const footerCustom = "自定义模式根据自定义时间范围和标签显示�
 
 // defaults
 const defaults = {
+  l10n: "zh",
   isZen: true,
   zenMaxCnt: 999,
   zenRoundMaxCnt: 20,
