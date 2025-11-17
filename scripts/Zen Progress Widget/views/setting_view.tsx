@@ -39,7 +39,9 @@ export function SettingView() {
   }
 
   function updateZenRoundMaxCnt(type: "inc" | "dec") {
-    const value = zenRoundMaxCnt.value + (type === "inc" ? 1 : -1)
+    const step = 5
+    let value = zenRoundMaxCnt.value + (type === "inc" ? step : -step)
+    value = Math.max(value, step)
     zenRoundMaxCnt.setValue(value)
     saveSetting("zenRoundMaxCnt", value)
   }
@@ -68,7 +70,9 @@ export function SettingView() {
   }
 
   function updateRetireAge(type: "inc" | "dec") {
-    const value = retireAge.value + (type === "inc" ? 1 : -1)
+    const step = 1
+    let value = retireAge.value + (type === "inc" ? step : -step)
+    value = Math.max(value, step)
     retireAge.setValue(value)
     saveSetting("retireAge", value)
   }
