@@ -9,7 +9,7 @@ const footerCustom = "自定义模式根据自定义时间范围和标签显示�
 const defaults = {
   l10n: "zh",
   isZen: true,
-  zenMaxCnt: 999,
+  zenMaxCnt: 9999,
   zenRoundMaxCnt: 20,
   zenRoundDurationTs: 30 * 60 * 1000, // 30mins
   isBirthday: false,

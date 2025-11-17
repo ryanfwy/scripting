@@ -21,7 +21,7 @@ export function GaugeZen() {
   }
 
   return <Gauge
-    value={cnt % zenRoundMaxCnt || zenRoundMaxCnt}
+    value={cnt % zenRoundMaxCnt}
     label={
       <Text
         contentTransition={"numericTextCountsUp"}
