@@ -8,7 +8,7 @@ export function InfoView() {
   return <NavigationStack>
     <List
       navigationTitle={scriptName}
-      navigationBarTitleDisplayMode={"automatic"}
+      navigationBarTitleDisplayMode={"inline"}
       toolbar={{
         topBarTrailing: [<Button
           systemImage={"gear"}

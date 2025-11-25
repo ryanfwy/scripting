@@ -2,8 +2,9 @@ import { useObservable, Script } from "scripting"
 import { StartFrom, getPhoto } from "../components/main"
 import { parseTextFromImage } from "../components/ocr"
 import { requestAssistant } from "../components/assistant"
-import { ActivityBuilder } from "../components/activity"
+import { ActivityBuilder } from "../live_activity"
 import { getSetting } from "../components/setting"
+import { saveThumbnail } from "../components/storage"
 import { haptic } from "../helper/haptic"
 import { debugWithStorage } from "../helper/debug"
 
@@ -15,6 +16,7 @@ export type TaskItem = {
   func: (arg?: any) => Promise<any>
 }
 
+let photoGlobal: UIImage
 const photoBlank = UIImage.fromFile(`${Script.directory}/blank.png`) as UIImage
 
 const cfgTasks: TaskItem[] = [
@@ -23,32 +25,34 @@ const cfgTasks: TaskItem[] = [
     title: "读取图片文件",
     status: "idle",
     func: async (from?: StartFrom) => {
-      return await getPhoto(from)
+      photoGlobal = await getPhoto(from)
+      return photoGlobal
     }
   },
-  // {
-  //   id: 2,
-  //   title: "OCR 解析图片内容",
-  //   status: "idle",
-  //   func: async (image: UIImage) => {
-  //     return await parseTextFromImage(image)
-  //   }
-  // },
   {
-    id: 3,
+    id: 2,
     title: "大模型解析结果",
     status: "idle",
     func: async (input: string | UIImage) => {
       return await requestAssistant(input)
+      // return { code: "A888", seller: "test" }
     }
   },
   {
-    id: 4,
+    id: 3,
     title: "启动 LiveActivity",
     status: "idle",
-    func: async ({ code, seller }: { code: string, seller: string }) => {
-      const builder = new ActivityBuilder()
-      return await builder.buildAndStartActivity({ code, seller })
+    func: async ({
+      code,
+      seller
+    }: {
+      code: string,
+      seller: string
+    }) => {
+      const activity = new ActivityBuilder()
+      const timestamp = activity.timestamp
+      await saveThumbnail(timestamp, photoGlobal)
+      return await activity.startActivity({ code, seller })
     }
   },
 ]
@@ -61,8 +65,8 @@ function debugIfNeeded(text: string) {
 export function runTaskWithUI(startFrom?: StartFrom) {
   const photo = useObservable<UIImage>(photoBlank)
   const tasks = useObservable<TaskItem[]>(cfgTasks)
-  const isLatestRunning = useObservable(false)
-  const isPickRunning = useObservable(false)
+  const isLatestRunning = useObservable<boolean>(false)
+  const isPickRunning = useObservable<boolean>(false)
 
   function updateTask(
     id: number,
@@ -91,11 +95,14 @@ export function runTaskWithUI(startFrom?: StartFrom) {
 
   async function runTasks(from: StartFrom = startFrom) {
     // init
-    if (isLatestRunning.value || isPickRunning.value) return
+    if (isLatestRunning.value) return
+    if (isPickRunning.value) return
     updateRunning(from, true)
     tasks.setValue(tasks.value.map(t => ({ ...t, status: "idle" })))
 
     // main run
+    let status = true
+    let message = ""
     let respPrev: any = from
     for (const task of tasks.value) {
       debugIfNeeded(`执行任务: ${task.id}. ${task.title}`)
@@ -106,6 +113,7 @@ export function runTaskWithUI(startFrom?: StartFrom) {
         } else {
           respPrev = await task.func()
         }
+        // set image
         if (task.id === 1) {
           photo.setValue(respPrev)
         }
@@ -114,20 +122,31 @@ export function runTaskWithUI(startFrom?: StartFrom) {
         updateTask(task.id, "success")
       }
       catch (e) {
+        status = false
+        message = String(e)
         debugIfNeeded(`执行出错: ${e}`)
-        haptic("failed")
         updateTask(task.id, "failed")
         break
       }
     }
 
     // finish
-    haptic("success")
+    if (status) {
+      haptic("success")
+    } else {
+      haptic("failed")
+    }
     updateRunning(from, false)
+    return { status, message }
   }
 
   return {
-    observes: { photo, tasks, isLatestRunning, isPickRunning },
+    observes: {
+      photo,
+      tasks,
+      isLatestRunning,
+      isPickRunning
+    },
     runTasks
   }
 }
@@ -154,5 +173,6 @@ export async function runTaskWithoutUI(startFrom?: StartFrom) {
       break
     }
   }
+
   return { status, message }
 }

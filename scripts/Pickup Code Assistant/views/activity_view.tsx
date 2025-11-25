@@ -1,6 +1,8 @@
-import { Button, HStack, Image, Spacer, Text, VStack, ZStack, Capsule } from "scripting"
+import { Button, HStack, Image, Spacer, Text, VStack, ZStack, Link, Script, RoundedRectangle, Circle } from "scripting"
 import { ActivityFinishIntent } from "../app_intents"
+import { genThumbnailPath } from "../components/storage"
 import { getSetting } from "../components/setting"
+import { scriptName } from "../components/constant"
 
 const timestamp2time = (timestamp: number) => {
   const date = new Date(timestamp)
@@ -9,6 +11,12 @@ const timestamp2time = (timestamp: number) => {
   const seconds = date.getSeconds().toString().padStart(2, '0')
   return `${hours}:${minutes}:${seconds}`
 }
+
+const sizeLogo = 16
+const offsetLogo = 3
+const heightView = 100
+const widthImg = 40
+const heightImg = 70
 
 export function LargeActivityView({
   code,
@@ -29,36 +37,88 @@ export function LargeActivityView({
       horizontal: 0,
       vertical: 20
     }}
-    frame={{ height: 100 }}
+    frame={{ height: heightView }}
     alignment="center"
+    activityBackgroundTint={"clear"}
   >
-    <ZStack>
-      <Capsule
-        fill={getSetting("systemColor")}
+    <Link
+      // activity 点击后启动 app 携带参数
+      // { activity, timestamp }
+      url={Script.createRunURLScheme(scriptName, {
+        activity: "true",
+        timestamp: String(timestamp)
+      })}
+    >
+      <ZStack
         frame={{
-          width: 40
+          width: widthImg,
+          maxHeight: heightImg,
         }}
-      />
-      <Image
-        systemName={"rosette"}
-        imageScale={"large"}
-        fontWeight={"bold"}
-      />
-    </ZStack>
+        overlay={{
+          alignment: "bottomTrailing",
+          content:
+            <ZStack
+              frame={{
+                width: sizeLogo,
+                height: sizeLogo
+              }}
+              offset={{
+                x: 0,
+                y: offsetLogo
+              }}
+            >
+              <RoundedRectangle
+                fill={getSetting("systemColor")}
+                cornerRadius={sizeLogo * 0.25}
+                style={"continuous"}
+              />
+              <Circle
+                fill={"white"}
+                padding={sizeLogo * 0.1}
+              />
+              <Image
+                font={sizeLogo * 0.65}
+                systemName={"rosette"}
+                imageScale={"small"}
+                fontWeight={"bold"}
+                foregroundStyle={getSetting("systemColor")}
+              />
+            </ZStack>
+        }}
+      >
+        <ZStack
+          frame={{
+            width: widthImg - offsetLogo * 2
+          }}
+        >
+          <Image
+            filePath={genThumbnailPath(timestamp).pathResized}
+            resizable={true}
+            scaleToFit={true}
+            clipShape={{
+              type: "rect",
+              cornerRadius: 3,
+              style: "continuous"
+            }}
+          />
+        </ZStack>
+      </ZStack>
+    </Link>
     <VStack
       alignment="leading"
     >
       <Text
         font={"largeTitle"}
         fontDesign={"rounded"}
-        fontWeight={"bold"}
-        foregroundStyle={getSetting("systemColor")}
+        fontWeight={"semibold"}
+        foregroundStyle={"label"}
         allowsTightening={true}
       >
         {code}
       </Text>
       <Text
         font={"body"}
+        foregroundStyle={"lightText"}
         padding={{
           bottom: 5
         }}
@@ -72,7 +132,7 @@ export function LargeActivityView({
     >
       <Text
         font={"footnote"}
-        foregroundStyle={"systemGray"}
+        foregroundStyle={"lightText"}
       >
         {timestamp2time(timestamp)}
       </Text>

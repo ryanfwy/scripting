@@ -10,7 +10,7 @@ export const ActivityFinishIntent = AppIntentManager.register({
   perform: async (timestamp: number) => {
     // lazy import
     try {
-      const { ActivityBuilder } = await import("./components/activity")
+      const { ActivityBuilder } = await import("./live_activity")
       await ActivityBuilder.endActivityWithTimestamp(timestamp)
     }
     catch (e) {

@@ -1,5 +1,5 @@
-import { VStack, HStack, Text, Button, Image, Spacer, NavigationStack, Navigation, useContext, ShapeStyle, DynamicShapeStyle } from "scripting"
-import { shouldRunOnAppear, FromContext } from "../components/main"
+import { VStack, HStack, Text, Button, Image, Spacer, NavigationStack, Navigation, useContext, ShapeStyle, DynamicShapeStyle, useObservable } from "scripting"
+import { shouldRunOnAppear, FromContext, StartFrom } from "../components/main"
 import { getSetting } from "../components/setting"
 import { TaskStatus, runTaskWithUI } from "../helper/task_runner"
 
@@ -13,26 +13,26 @@ const statusStyles: {
     foregroundStyle: ShapeStyle | DynamicShapeStyle
   }
 } = {
-  running: {
-    systemName: "play.circle.fill",
-    foregroundStyle: {
-      light: "black",
-      dark: "white",
+    running: {
+      systemName: "play.circle.fill",
+      foregroundStyle: {
+        light: "black",
+        dark: "white",
+      }
+    },
+    success: {
+      systemName: "checkmark.circle.fill",
+      foregroundStyle: "systemGreen"
+    },
+    failed: {
+      systemName: "xmark.circle.fill",
+      foregroundStyle: "systemRed"
+    },
+    idle: {
+      systemName: "info.circle.fill",
+      foregroundStyle: "secondaryLabel"
     }
-  },
-  success: {
-    systemName: "checkmark.circle.fill",
-    foregroundStyle: "systemGreen"
-  },
-  failed: {
-    systemName: "xmark.circle.fill",
-    foregroundStyle: "systemRed"
-  },
-  idle: {
-    systemName: "info.circle.fill",
-    foregroundStyle: "secondaryLabel"
   }
-}
 
 function PhotoView({
   photo
@@ -41,6 +41,8 @@ function PhotoView({
 }) {
   return <NavigationStack>
     <Image
+      navigationTitle={("Preview Photo")}
+      navigationBarTitleDisplayMode={"inline"}
       image={photo}
       scaleToFit={true}
       resizable={true}
@@ -51,15 +53,38 @@ function PhotoView({
 export function TaskList() {
   const from = useContext(FromContext)
   const { observes, runTasks } = runTaskWithUI(from)
-  const { photo, tasks, isLatestRunning, isPickRunning } = observes
+  const {
+    photo,
+    tasks,
+    isLatestRunning,
+    isPickRunning
+  } = observes
+  const showToast = useObservable<boolean>(false)
+  const toastMsg = useObservable<string>("")
+
+  async function run(from: StartFrom) {
+    const resp = await runTasks(from)
+    if (resp?.status === false) {
+      toastMsg.setValue(resp.message)
+      showToast.setValue(true)
+    }
+  }
+
+  async function runOnAppear(from: StartFrom) {
+    if (hasRunOnAppear) return
+    if (!shouldRunOnAppear(from)) return
+    hasRunOnAppear = true
+    await run(from)
+  }
 
   // 启动立即执行
   return <VStack
-    onAppear={() => {
-      if (!hasRunOnAppear && shouldRunOnAppear(from)) {
-        hasRunOnAppear = true
-        runTasks(from)
-      }
+    onAppear={() => { runOnAppear(from) }}
+    toast={{
+      isPresented: showToast,
+      message: toastMsg.value,
+      position: "center",
+      duration: 5
     }}
   >
     <HStack
@@ -93,6 +118,11 @@ export function TaskList() {
       </VStack>
       <Spacer />
       <Image
+        clipShape={{
+          type: "rect",
+          cornerRadius: 5,
+          style: "continuous"
+        }}
         image={photo.value}
         resizable={true}
         scaleToFit={true}
@@ -115,7 +145,7 @@ export function TaskList() {
         buttonBorderShape={"capsule"}
         foregroundStyle={getSetting("systemColor")}
         controlSize={"large"}
-        action={() => runTasks("latest")}
+        action={() => run("latest")}
         disabled={isLatestRunning.value || isPickRunning.value}
         tint={getSetting("systemColor")}
         fontWeight={"semibold"}
@@ -129,7 +159,7 @@ export function TaskList() {
         buttonBorderShape={"capsule"}
         foregroundStyle={getSetting("systemColor")}
         controlSize={"large"}
-        action={() => runTasks("pick")}
+        action={() => run("pick")}
         disabled={isLatestRunning.value || isPickRunning.value}
         tint={getSetting("systemColor")}
         fontWeight={"semibold"}

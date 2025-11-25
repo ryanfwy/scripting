@@ -1,4 +1,4 @@
-import { Button, NavigationStack, Text, List, Section, TextField, Toggle, Picker, ColorPicker, useObservable, HStack } from "scripting"
+import { Button, NavigationStack, Text, List, Section, TextField, Toggle, Picker, ColorPicker, useObservable, HStack, Path } from "scripting"
 import { headerStyle, settingModelFooter, settingPromptFooter, settingDebugFooter } from "../components/constant"
 import { getSetting, saveSetting } from "../components/setting"
 import { removeDebugStorage } from "../helper/debug"
@@ -15,7 +15,7 @@ export function SettingView() {
   const modelPrompt = useObservable<string>(getSetting("modelPrompt"))
   const isDebug = useObservable<boolean>(getSetting("isDebug"))
   const showToast = useObservable<boolean>(false)
-  const toastValue = useObservable<string>("")
+  const toastMsg = useObservable<string>("")
 
   const colorOptions = [
     { tag: "systemGray", text: "systemGray" },
@@ -116,7 +116,7 @@ export function SettingView() {
     catch (e) {
       message = String(e)
     }
-    toastValue.setValue(message)
+    toastMsg.setValue(message)
     showToast.setValue(true)
     modelCheck.setValue(true)
     haptic("select")
@@ -125,7 +125,7 @@ export function SettingView() {
   function updateModelPrompt() {
     const value = modelPrompt.value
     saveSetting("modelPrompt", value)
-    toastValue.setValue("已完成")
+    toastMsg.setValue("已完成")
     showToast.setValue(true)
     haptic("select")
   }
@@ -134,7 +134,20 @@ export function SettingView() {
     saveSetting("modelPrompt", null)
     const value = getSetting("modelPrompt")
     modelPrompt.setValue(value)
-    toastValue.setValue("已完成")
+    toastMsg.setValue("已完成")
+    showToast.setValue(true)
+    haptic("select")
+  }
+
+  function clearThumbnails() {
+    const dir = FileManager.appGroupDocumentsDirectory
+    const files =  FileManager.readDirectorySync(dir)
+    const filesThumb = files.filter(f => f.match(/^pickup-code-activity-.+\.jpeg$/))
+    // console.log(filesThumb)
+    for (const file of filesThumb) {
+      FileManager.removeSync(Path.join(dir, file))
+    }
+    toastMsg.setValue("已清除")
     showToast.setValue(true)
     haptic("select")
   }
@@ -142,13 +155,13 @@ export function SettingView() {
   return <NavigationStack
     toast={{
       isPresented: showToast,
-      message: toastValue.value,
+      message: toastMsg.value,
       position: "center",
     }}
   >
     <List
       navigationTitle={"Settings"}
-      navigationBarTitleDisplayMode={"automatic"}
+      navigationBarTitleDisplayMode={"inline"}
       scrollDismissesKeyboard={"immediately"}
     >
       <Section
@@ -316,6 +329,11 @@ export function SettingView() {
           onChanged={updateIsDebug}
           title={"开启 Debug"}
           tint={systemColor.value}
+        />
+        <Button
+          title={"清除历史缩略图"}
+          tint={systemColor.value}
+          action={clearThumbnails}
         />
       </Section>
     </List>
