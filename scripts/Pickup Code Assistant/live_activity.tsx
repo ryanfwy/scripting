@@ -1,5 +1,5 @@
 import { LiveActivity, LiveActivityUIBuilder, LiveActivityUI, LiveActivityUIExpandedCenter } from "scripting"
-import { saveActivity, getActivityWithTimestamp, removeActivityWithTimestamp, removeThumbnailWithTimestamp } from "./components/storage"
+import { saveActivity, getActivityWithTs, removeActivityWithTs, removeThumbnailWithTs } from "./components/storage"
 import { LargeActivityView, MiniActivityViewLeading, MiniActivityViewTrailing } from "./views/activity_view"
 import { debugWithStorage } from "./helper/debug"
 
@@ -43,12 +43,12 @@ function buildActivity() {
   return builder
 }
 
-const PickupCodeAssistantActivity = LiveActivity.register(activityName, buildActivity())
+const PickupCodeActivity = LiveActivity.register(activityName, buildActivity())
 
 export class ActivityBuilder {
   /* 静态方法 */
-  static async endActivityWithTimestamp(timestamp: number) {
-    const data = getActivityWithTimestamp(timestamp)
+  static async endActivityWithTs(timestamp: number) {
+    const data = getActivityWithTs(timestamp)
     if (data == null) return
 
     const activity = await LiveActivity.from(
@@ -56,17 +56,21 @@ export class ActivityBuilder {
       activityName
     )
 
-    if (activity == null) return
+    if (activity == null) {
+      removeActivityWithTs(timestamp)
+      removeThumbnailWithTs(timestamp)
+      return
+    }
     try {
       activity.end(
         {},
         { dismissTimeInterval: 0 }
       )
-      removeActivityWithTimestamp(timestamp)
-      removeThumbnailWithTimestamp(timestamp)
+      removeActivityWithTs(timestamp)
+      removeThumbnailWithTs(timestamp)
     }
     catch (e) {
-      debugWithStorage("endActivityWithTimestamp: " + String(e))
+      debugWithStorage("endActivityWithTs: " + String(e))
     }
   }
 
@@ -75,9 +79,11 @@ export class ActivityBuilder {
   timestamp: number
   activity: LiveActivity<State>
 
-  constructor() {
-    this.timestamp = Date.now()
-    this.activity = PickupCodeAssistantActivity()
+  constructor(
+    timestamp?: number
+  ) {
+    this.timestamp = timestamp || Date.now()
+    this.activity = PickupCodeActivity()
   }
 
   async startActivity({
@@ -93,7 +99,7 @@ export class ActivityBuilder {
       code, seller,
       timestamp: this.timestamp
     }, {
-      relevanceScore: this.timestamp
+      relevanceScore: Date.now()
     })
     if (status === false) {
       throw("startActivity: status false")

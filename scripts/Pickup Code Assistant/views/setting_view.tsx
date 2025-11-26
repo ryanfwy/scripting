@@ -1,5 +1,7 @@
-import { Button, NavigationStack, Text, List, Section, TextField, Toggle, Picker, ColorPicker, useObservable, HStack, Path } from "scripting"
+import { Button, NavigationStack, Text, List, Section, TextField, Toggle, Picker, ColorPicker, useObservable, HStack, useContext } from "scripting"
 import { headerStyle, settingModelFooter, settingPromptFooter, settingDebugFooter } from "../components/constant"
+import { clearHistoryFully, clearHistoryInactive } from "../components/storage"
+import { RunContext, updateActivityValue } from "../components/main"
 import { getSetting, saveSetting } from "../components/setting"
 import { removeDebugStorage } from "../helper/debug"
 import { haptic } from "../helper/haptic"
@@ -17,8 +19,10 @@ export function SettingView() {
   const showToast = useObservable<boolean>(false)
   const toastMsg = useObservable<string>("")
 
+  // activitys: context as history list setter
+  const { activitys } = useContext(RunContext)
+
   const colorOptions = [
-    { tag: "systemGray", text: "systemGray" },
     { tag: "systemPink", text: "systemPink" },
     { tag: "systemRed", text: "systemRed" },
     { tag: "systemBlue", text: "systemBlue" },
@@ -139,14 +143,17 @@ export function SettingView() {
     haptic("select")
   }
 
-  function clearThumbnails() {
-    const dir = FileManager.appGroupDocumentsDirectory
-    const files =  FileManager.readDirectorySync(dir)
-    const filesThumb = files.filter(f => f.match(/^pickup-code-activity-.+\.jpeg$/))
-    // console.log(filesThumb)
-    for (const file of filesThumb) {
-      FileManager.removeSync(Path.join(dir, file))
-    }
+  async function clearHistoryLight() {
+    await clearHistoryInactive()
+    updateActivityValue(activitys)
+    toastMsg.setValue("已清除")
+    showToast.setValue(true)
+    haptic("select")
+  }
+
+  async function clearHistoryDeep() {
+    await clearHistoryFully()
+    updateActivityValue(activitys)
     toastMsg.setValue("已清除")
     showToast.setValue(true)
     haptic("select")
@@ -181,7 +188,7 @@ export function SettingView() {
           title={"启动后立即执行"}
           tint={systemColor.value}
         />
-        {isRunWhenStarted.value ? (
+        {isRunWhenStarted.value && (
           <Picker
             value={runType.value}
             onChanged={updateRunType}
@@ -194,7 +201,7 @@ export function SettingView() {
                 {type.text}
               </Text>
             ))}
-          </Picker>) : null}
+          </Picker>)}
         <Picker
           value={systemColor.value}
           onChanged={updateSystemColor}
@@ -208,14 +215,14 @@ export function SettingView() {
             </Text>
           ))}
         </Picker>
-        {systemColor.value.includes("rgb") ? (
+        {systemColor.value.includes("rgb") && (
           <ColorPicker
             title="自定义"
             value={systemColor.value}
             onChanged={updateSystemColor}
             supportsOpacity={false}
           />
-        ) : null}
+        )}
       </Section>
       <Section
         header={
@@ -239,7 +246,7 @@ export function SettingView() {
           title={"使用 App 默认设置"}
           tint={systemColor.value}
         />
-        {!isModelDefault.value ? (
+        {!isModelDefault.value && (
           <Picker
             value={modelProvider.value}
             onChanged={updateModelProvider}
@@ -253,26 +260,26 @@ export function SettingView() {
               </Text>
             ))}
           </Picker>
-        ) : null}
-        {!isModelDefault.value ? (
-        <HStack>
-          <Text>{"模型"}</Text>
-          <TextField
-            multilineTextAlignment={"trailing"}
-            title={"如 gemini-2.0-flash"}
-            value={modelID.value}
-            onChanged={updateModelId}
-          />
-        </HStack>
-        ) : null}
-        {!isModelDefault.value ? (
+        )}
+        {!isModelDefault.value && (
+          <HStack>
+            <Text>{"模型"}</Text>
+            <TextField
+              multilineTextAlignment={"trailing"}
+              title={"如 gemini-2.0-flash"}
+              value={modelID.value}
+              onChanged={updateModelId}
+            />
+          </HStack>
+        )}
+        {!isModelDefault.value && (
           <Button
             title={"检查模型可用性"}
             tint={systemColor.value}
             disabled={!modelCheck.value}
             action={checkModelAvailable}
           />
-        ) : null}
+        )}
       </Section>
       <Section
         header={
@@ -331,9 +338,14 @@ export function SettingView() {
           tint={systemColor.value}
         />
         <Button
-          title={"清除历史缩略图"}
+          title={"清除不活跃缓存"}
           tint={systemColor.value}
-          action={clearThumbnails}
+          action={clearHistoryLight}
+        />
+        <Button
+          title={"清除所有历史缓存"}
+          tint={systemColor.value}
+          action={clearHistoryDeep}
         />
       </Section>
     </List>

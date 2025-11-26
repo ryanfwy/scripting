@@ -11,7 +11,7 @@ export const ActivityFinishIntent = AppIntentManager.register({
     // lazy import
     try {
       const { ActivityBuilder } = await import("./live_activity")
-      await ActivityBuilder.endActivityWithTimestamp(timestamp)
+      await ActivityBuilder.endActivityWithTs(timestamp)
     }
     catch (e) {
       debugWithStorage("ActivityFinishIntent: " + String(e), storageKeyWidgetError)

@@ -1,10 +1,8 @@
-import { VStack, HStack, Text, Button, Image, Spacer, NavigationStack, Navigation, useContext, ShapeStyle, DynamicShapeStyle, useObservable } from "scripting"
-import { shouldRunOnAppear, FromContext, StartFrom } from "../components/main"
+import { VStack, HStack, Text, Button, Image, Spacer, NavigationStack, Navigation, useContext, ShapeStyle, DynamicShapeStyle, useObservable, useEffect } from "scripting"
+import { shouldRunOnAppear, StartFromType, RunContext, updateActivityValue } from "../components/main"
+import { TaskStatus, runTaskWithUI } from "../components/task"
 import { getSetting } from "../components/setting"
-import { TaskStatus, runTaskWithUI } from "../helper/task_runner"
 
-// 启动立即执行状态，只执行一次
-let hasRunOnAppear = false
 const animate = Animation.linear(0.15)
 
 const statusStyles: {
@@ -51,35 +49,31 @@ function PhotoView({
 }
 
 export function TaskList() {
-  const from = useContext(FromContext)
+  // activitys: context as history list setter
+  const runState = useContext(RunContext)
+  const { from, activitys } = runState
   const { observes, runTasks } = runTaskWithUI(from)
-  const {
-    photo,
-    tasks,
-    isLatestRunning,
-    isPickRunning
-  } = observes
+  const { photo, tasks, isLatestRunning, isPickRunning } = observes
   const showToast = useObservable<boolean>(false)
   const toastMsg = useObservable<string>("")
 
-  async function run(from: StartFrom) {
+  async function run(from: StartFromType) {
     const resp = await runTasks(from)
+    updateActivityValue(activitys)
     if (resp?.status === false) {
       toastMsg.setValue(resp.message)
       showToast.setValue(true)
+      return
     }
   }
 
-  async function runOnAppear(from: StartFrom) {
-    if (hasRunOnAppear) return
+  // init once
+  useEffect(() => {
     if (!shouldRunOnAppear(from)) return
-    hasRunOnAppear = true
-    await run(from)
-  }
+    run(from)
+  }, [])
 
-  // 启动立即执行
   return <VStack
-    onAppear={() => { runOnAppear(from) }}
     toast={{
       isPresented: showToast,
       message: toastMsg.value,

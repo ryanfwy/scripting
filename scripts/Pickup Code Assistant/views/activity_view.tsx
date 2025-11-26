@@ -1,15 +1,19 @@
-import { Button, HStack, Image, Spacer, Text, VStack, ZStack, Link, Script, RoundedRectangle, Circle } from "scripting"
+import { Button, HStack, Image, Spacer, Text, VStack, ZStack, Link, Script, RoundedRectangle, Circle, ShapeStyle, DynamicShapeStyle, LiveActivityState, Capsule } from "scripting"
 import { ActivityFinishIntent } from "../app_intents"
 import { genThumbnailPath } from "../components/storage"
 import { getSetting } from "../components/setting"
 import { scriptName } from "../components/constant"
 
-const timestamp2time = (timestamp: number) => {
+const timestamp2time = (
+  timestamp: number,
+  style: "time" | "date" | "dateTime" | "dateYear" | "all"
+) => {
   const date = new Date(timestamp)
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
-  const seconds = date.getSeconds().toString().padStart(2, '0')
-  return `${hours}:${minutes}:${seconds}`
+  if (style === "time") return date.toLocaleTimeString()
+  if (style === "date") return date.toLocaleDateString().match(/\d+\/\d+$/)
+  if (style ===  "dateTime") return date.toLocaleString().match(/\d+\/\d+ \d+:\d+/)
+  if (style === "dateYear") return date.toLocaleDateString()
+  return date.toLocaleString()
 }
 
 const sizeLogo = 16
@@ -17,17 +21,28 @@ const offsetLogo = 3
 const heightView = 100
 const widthImg = 40
 const heightImg = 70
+const stylePrimary: ShapeStyle = "label"
+const styleSecondary: ShapeStyle = "lightText"
+const styleSecondaryApp: DynamicShapeStyle = {
+  light: "darkText",
+  dark: "lightText"
+}
+const styleInactive = "systemGray"
 
 export function LargeActivityView({
   code,
   seller,
   timestamp,
-  isPadding = true
+  state = "active",
+  isPadding = true,
+  isShowInApp = false
 }: {
   code: string,
   seller: string,
   timestamp: number,
-  isPadding?: boolean
+  state?: LiveActivityState | null,
+  isPadding?: boolean,
+  isShowInApp?: boolean
 }) {
   return <HStack
     padding={isPadding ? {
@@ -68,7 +83,7 @@ export function LargeActivityView({
               }}
             >
               <RoundedRectangle
-                fill={getSetting("systemColor")}
+                fill={state === "active" ? getSetting("systemColor") : styleInactive}
                 cornerRadius={sizeLogo * 0.25}
                 style={"continuous"}
               />
@@ -81,7 +96,7 @@ export function LargeActivityView({
                 systemName={"rosette"}
                 imageScale={"small"}
                 fontWeight={"bold"}
-                foregroundStyle={getSetting("systemColor")}
+                foregroundStyle={state === "active" ? getSetting("systemColor") : styleInactive}
               />
             </ZStack>
         }}
@@ -111,17 +126,16 @@ export function LargeActivityView({
         font={"largeTitle"}
         fontDesign={"rounded"}
         fontWeight={"semibold"}
-        foregroundStyle={"label"}
+        foregroundStyle={stylePrimary}
         allowsTightening={true}
       >
         {code}
       </Text>
       <Text
         font={"body"}
-        foregroundStyle={"lightText"}
-        padding={{
-          bottom: 5
-        }}
+        foregroundStyle={isShowInApp ? styleSecondaryApp : styleSecondary}
+        allowsTightening={true}
+        padding={{ bottom: 5 }}
       >
         {seller}
       </Text>
@@ -132,24 +146,39 @@ export function LargeActivityView({
     >
       <Text
         font={"footnote"}
-        foregroundStyle={"lightText"}
+        foregroundStyle={isShowInApp ? styleSecondaryApp : styleSecondary}
       >
-        {timestamp2time(timestamp)}
+        {timestamp2time(timestamp, "dateTime")}
       </Text>
       <Spacer />
-      <Button
-        intent={ActivityFinishIntent(timestamp)}
-        controlSize={"mini"}
-        buttonBorderShape={"capsule"}
-        foregroundStyle={getSetting("systemColor")}
-        tint={getSetting("systemColor")}
-      >
-        <Image
-          systemName={"checkmark"}
-          imageScale={"large"}
-          fontWeight={"bold"}
-        />
-      </Button>
+      {!isShowInApp ? (
+        <Button
+          intent={ActivityFinishIntent(timestamp)}
+          controlSize={"mini"}
+          buttonBorderShape={"capsule"}
+          foregroundStyle={getSetting("systemColor")}
+          tint={getSetting("systemColor")}
+        >
+          <Image
+            systemName={"checkmark"}
+            imageScale={"large"}
+            fontWeight={"bold"}
+          />
+        </Button>
+        ) : (
+        <ZStack
+          frame={{ width: 50, height: 30 }}
+        >
+          <Capsule
+            fill={state === "active" ? getSetting("systemColor") : styleInactive}
+            opacity={0.2}
+          />
+          <Image
+            systemName={"flag.fill"}
+            foregroundStyle={state === "active" ? getSetting("systemColor") : styleInactive}
+          />
+        </ZStack>
+      )}
     </VStack>
   </HStack>
 }

@@ -1,5 +1,5 @@
 import { useObservable, Script } from "scripting"
-import { StartFrom, getPhoto } from "../components/main"
+import { StartFromType, getPhoto } from "../components/main"
 import { parseTextFromImage } from "../components/ocr"
 import { requestAssistant } from "../components/assistant"
 import { ActivityBuilder } from "../live_activity"
@@ -24,7 +24,7 @@ const cfgTasks: TaskItem[] = [
     id: 1,
     title: "读取图片文件",
     status: "idle",
-    func: async (from?: StartFrom) => {
+    func: async (from?: StartFromType) => {
       photoGlobal = await getPhoto(from)
       return photoGlobal
     }
@@ -62,7 +62,7 @@ function debugIfNeeded(text: string) {
   debugWithStorage(text)
 }
 
-export function runTaskWithUI(startFrom?: StartFrom) {
+export function runTaskWithUI(startFrom?: StartFromType) {
   const photo = useObservable<UIImage>(photoBlank)
   const tasks = useObservable<TaskItem[]>(cfgTasks)
   const isLatestRunning = useObservable<boolean>(false)
@@ -76,7 +76,7 @@ export function runTaskWithUI(startFrom?: StartFrom) {
   }
 
   function updateRunning(
-    from: StartFrom,
+    from: StartFromType,
     status: boolean
   ) {
     switch (from) {
@@ -93,7 +93,7 @@ export function runTaskWithUI(startFrom?: StartFrom) {
     }
   }
 
-  async function runTasks(from: StartFrom = startFrom) {
+  async function runTasks(from: StartFromType = startFrom) {
     // init
     if (isLatestRunning.value) return
     if (isPickRunning.value) return
@@ -151,7 +151,7 @@ export function runTaskWithUI(startFrom?: StartFrom) {
   }
 }
 
-export async function runTaskWithoutUI(startFrom?: StartFrom) {
+export async function runTaskWithoutUI(startFrom?: StartFromType) {
   let status = true
   let message = ""
   let respPrev: any = startFrom

@@ -3,17 +3,23 @@ import { LiveActivity, Path } from "scripting"
 const keyIds = "activity.ids"
 const keyImgs = "activity.imgs"
 
+/* Activity */
+
 export function getAllActivitys() {
   return Storage.get<Record<string, any>[]>(keyIds)
 }
 
-export function getActivityWithTimestamp(timestamp: number) {
+export function getActivityWithTs(timestamp: number) {
   const data = getAllActivitys()
   for (const d of data ?? []) {
     if (d.timestamp === timestamp) {
       return d
     }
   }
+}
+
+export function getActityState(activityId: string) {
+  return LiveActivity.getActivityState(activityId)
 }
 
 export function saveActivity({
@@ -34,7 +40,7 @@ export function saveActivity({
   }
 }
 
-export function removeActivityWithTimestamp(timestamp: number) {
+export function removeActivityWithTs(timestamp: number) {
   const data = getAllActivitys()
   if (data) {
     const newData = data.filter(d => d.timestamp !== timestamp)
@@ -42,7 +48,15 @@ export function removeActivityWithTimestamp(timestamp: number) {
   }
 }
 
-export async function remoteActivityInactive() {
+export function removeActivityWithId(activityId: string) {
+  const data = getAllActivitys()
+  if (data) {
+    const newData = data.filter(d => d.activityId !== activityId)
+    Storage.set(keyIds, newData)
+  }
+}
+
+export async function removeActivityInactive() {
   const activityIds = await LiveActivity.getAllActivitiesIds()
   if (activityIds == null || activityIds.length === 0) {
     Storage.set(keyIds, [])
@@ -117,7 +131,7 @@ export async function removeThumbnailInactive() {
   Storage.set(keyImgs, newImgs)
 }
 
-export async function removeThumbnailWithTimestamp(timestamp: number) {
+export async function removeThumbnailWithTs(timestamp: number) {
   const { pathOrigin, pathResized } = genThumbnailPath(timestamp)
   FileManager.remove(pathOrigin)
   FileManager.remove(pathResized)
@@ -127,4 +141,23 @@ export async function removeThumbnailWithTimestamp(timestamp: number) {
     const newImgs = imgIds.filter(id => id !== timestamp)
     Storage.set(keyImgs, newImgs)
   }
+}
+
+/* History */
+
+export async function clearHistoryInactive() {
+  await removeActivityInactive()
+  await removeThumbnailInactive()
+}
+
+export async function clearHistoryFully() {
+  const dir = FileManager.appGroupDocumentsDirectory
+  const files = FileManager.readDirectorySync(dir)
+  const filesThumb = files.filter(f => f.match(/^pickup-code-activity-.+\.jpeg$/))
+  // console.log(filesThumb)
+  for (const file of filesThumb) {
+    FileManager.removeSync(Path.join(dir, file))
+  }
+  Storage.set(keyIds, [])
+  Storage.set(keyImgs, [])
 }
