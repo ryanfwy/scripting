@@ -1,6 +1,6 @@
-import { NavigationStack, Text, List, Section, Stepper, TextField, Toggle, DatePicker, useObservable, HStack, Spacer, Picker } from "scripting"
+import { NavigationStack, Text, List, Section, Stepper, TextField, Toggle, DatePicker, useObservable, HStack, Spacer, Picker, Markdown } from "scripting"
 import { getSetting, saveSetting, footerZen, footerBirthday, footerCustom } from "../components/setting"
-import { keyZenTs } from "../components/constant"
+import { keyZenTs, infoInstrucion } from "../components/constant"
 
 const l10nOptions = [
   { tag: "zh", text: "Zh (日,月,年...)" },
@@ -112,6 +112,15 @@ export function SettingView() {
       navigationBarTitleDisplayMode={"automatic"}
       scrollDismissesKeyboard={"immediately"}
     >
+      <Section
+        header={
+          <Text>{"使用说明"}</Text>
+        }
+      >
+        <Markdown
+          content={infoInstrucion}
+        />
+      </Section>
       <Section
         header={
           <Text>{"通用配置"}</Text>

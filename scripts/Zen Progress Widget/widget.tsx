@@ -1,4 +1,4 @@
-import { Button, Image, Text, Widget, ZStack } from "scripting"
+import { Button, Text, Widget, ZStack } from "scripting"
 import { GaugeZen } from "./views/gauge_zen"
 import { GaugeProgress } from "./views/gauge_progress"
 import { keyZenTs } from "./components/constant"
@@ -22,23 +22,28 @@ function WidgetView() {
   if (isZenEnds() === false) {
     viewType = "progress"
   }
+  const ProgressView = viewType === "zen" ? GaugeZen : GaugeProgress
 
   return <ZStack
     frame={Widget.displaySize}
   >
-    {viewType === "zen" ? <GaugeZen /> : null}
-    {viewType === "progress" ? <GaugeProgress /> : null}
     <Button
-      frame={{ maxWidth: "infinity", maxHeight: "infinity" }}
       buttonStyle={"plain"}
       intent={WidgetButtonIntent(viewType)}
     >
-      <Image
-        frame={{ maxWidth: "infinity", maxHeight: "infinity" }}
-        systemName={""}
-        background="rgba(0,0,0,0.00001)"
-      />
+      <ProgressView />
     </Button>
+    {viewType === "zen" ?
+      <Text
+        font={6}
+        fontDesign={"rounded"}
+        fontWeight={"black"}
+        offset={{ x: 3, y: -6 }}
+        rotationEffect={{ degrees: -10, anchor: "center" }}
+      >
+        {"+1"}
+      </Text> : undefined
+    }
   </ZStack>
 }
 
