@@ -29,9 +29,27 @@
 
 [点击安装](https://scripting.fun/import_scripts?urls=%5B%22https%3A%2F%2Fimarkr.com%2Fapi%2Fgithub%2Fdownload%2Fryanfwy%2Fscripting%2Ftree%2Fmaster%2Fscripts%2FPickup%2520Code%2520Assistant.zip%22%5D)
 
-|     |     |
-| --- | --- |
-| ![01](images/pickup_code_assistant_01.jpg) | ![02](images/pickup_code_assistant_02.jpg) |
+|     |     |     |
+| --- | --- | --- |
+| ![01](images/pickup_code_assistant_03.jpg) | ![02](images/pickup_code_assistant_04.jpg) | ![03](images/pickup_code_assistant_05.jpg) |
+
+### 更新日志
+#### 1.3.x
+- 新增：App 内增加历史记录和重新上岛等功能，现在可以管理取码记录实现延迟提醒了
+- 新增：实时活动增加缩略图显示，点击图片可以跳转 App 进行预览
+- 更新：适配实时活动全透明样式
+- 更新：微调介绍页内容和样式
+- 更新：修改若干设置项
+- 更新：其他修复和优化
+
+#### 1.2.x
+- 新增：设置页增加指定模型配置
+- 新增：支持从 Shortcuts 后台执行脚本
+- 修复：优化实时活动展示
+
+#### 1.1.x
+- 新增：支持使用图片调用大模型，现在可以使用多模态大模型解析图片了
+
 
 ### 介绍
 
@@ -45,15 +63,15 @@
 
 | 推荐 | 方式 | 优点 | 配置方式 |
 | --- | --- | --- | --- |
-| ⭐️⭐️⭐️ | 联动 Shortcuts 全自动截图并执行 | 无需手动截图，也无需保留一堆截图 | 1. 获取配套 Shortcuts [后台版](https://www.icloud.com/shortcuts/2e0709eaa10d42068fca683a776635ad) or [前台版](https://www.icloud.com/shortcuts/8f1d57435e2f461fbe52004494b79835)<br>2. 在控制中心添加 Shortcuts<br>3. 在取餐信息中下拉控制中心运行 Shortcuts，自动完成截图并执行 |
-| ⭐️ | 手动截图，控制中心快速跳转执行 | 可以从相册挑选过去的图片 | 1. 在控制中心添加脚本为启动按钮<br>2. 在取餐信息中手动截图<br>3. 任何地方下拉控制中心跳转主应用，可以选择从「最新图片」或「相册挑选」中执行，支持设置启动后立即执行 |
+| ⭐️⭐️⭐️ | 联动 Shortcuts 全自动截图并执行 | 无需手动截图，也无需保留一堆截图 | 1. 获取配套 Shortcuts [后台版](https://www.icloud.com/shortcuts/10c0a273b7db46c2800d6377f7cf9fbe) or [前台版](https://www.icloud.com/shortcuts/83029b5e256449d5a7ff6dac27d97fb4)<br>2. 在控制中心（仅 iOS 26）或辅助功能->轻点背面（均适用）添加 Shortcuts<br>3. 在取码信息中运行 Shortcuts，自动完成截图并执行 |
+| ⭐️ | 手动截图，控制中心快速跳转执行 | 可以从相册挑选过去的图片 | 1. 在控制中心添加脚本为启动按钮<br>2. 在取码信息中手动截图<br>3. 任何地方下拉控制中心跳转主应用，可以选择从「最新图片」或「相册挑选」中执行，支持设置启动后立即执行 |
 | 🤡 | 手动截图，手动启动 App 执行 | 没有优点...不舍得占用控制中心 | 无需配置，按需使用 |
 
 #### 实时活动管理
 
 实时活动可以通过以下方式关闭：
-1. 实时活动界面配置了完成按钮，点击后即可关闭活动
-2. 系统也提供直接在锁屏界面左滑进行关闭，操作没那么便捷
+1. 【完成提醒】点击界面配置的完成按钮进行关闭，历史记录将一并清除，App 内不再保留
+2. 【延迟提醒】实时活动左滑进行关闭，历史记录将会保留，App 内可以重新管理和上岛
 
 ### 你可能还想知道
 
