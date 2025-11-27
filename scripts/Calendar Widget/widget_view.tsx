@@ -1,8 +1,16 @@
-import { Button, Circle, Divider, ForEach, Grid, GridRow, Image, ShapeStyle, Spacer, Text, VStack, ZStack } from "scripting"
+import { Button, Circle, Divider, DynamicShapeStyle, Grid, GridRow, Image, ShapeStyle, Spacer, Text, VStack, ZStack } from "scripting"
 import { ClickIntent } from "./app_intents"
 import { isShowCurrent } from "./data"
 
 const weekendColor = "systemGray"
+const weekdayColor: DynamicShapeStyle = {
+  light: "black",
+  dark: "white"
+}
+const reverseColor: DynamicShapeStyle = {
+  light: "white",
+  dark: "black"
+}
 const calandarFont = { name: "Avenir-Medium", size: 10 }
 
 export function TodayView({
@@ -13,6 +21,7 @@ export function TodayView({
   date: number,
 }) {
   const monthTrans = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+
   return <VStack alignment="center">
     <Button
       buttonStyle={"plain"}
@@ -42,6 +51,7 @@ export function TodayView({
         >
           <Text
             font={18}
+            foregroundStyle={weekdayColor}
             fontWeight={"black"}
             fontDesign={"rounded"}
             monospacedDigit={true}
@@ -51,6 +61,7 @@ export function TodayView({
         </Button>
         <Button
           buttonStyle={"plain"}
+          foregroundStyle={weekdayColor}
           intent={ClickIntent("back")}
           hidden={isShowCurrent()}
         >
@@ -76,27 +87,25 @@ export function TodayView({
   </VStack>
 }
 
-function CalanderHeaderGridRow() {
+function CalendarHeaderGridRow() {
   const header = ["日", "一", "二", "三", "四", "五", "六"]
+
   return <GridRow alignment="center">
-    <ForEach
-      count={7}
-      itemBuilder={idx => {
-        const day = header[idx]
-        return <Text
-          key={day}
-          font={calandarFont}
-          fontWeight={"black"}
-          foregroundStyle={idx === 0 || idx === 6 ? weekendColor : "white"}
-        >
-          {day}
-        </Text>
-      }}
-    />
+    {Array(7).fill(0).map((_, idx) => {
+      const day = header[idx]
+      return <Text
+        key={day}
+        font={calandarFont}
+        fontWeight={"black"}
+        foregroundStyle={idx === 0 || idx === 6 ? weekendColor : weekdayColor}
+      >
+        {day}
+      </Text>
+    })}
   </GridRow>
 }
 
-function CalanderGridRow({
+function CalendarGridRow({
   dates,
   today,
   start,
@@ -107,32 +116,38 @@ function CalanderGridRow({
 }) {
   const showCircle = (idx: number) => {
     const date = dates[start + idx]
-    if (date === today && isShowCurrent() === true) return true
+    if (date === today && isShowCurrent() === true) {
+      return true
+    }
     return false
   }
+
   return <GridRow alignment="center">
-    <ForEach
-      count={7}
-      itemBuilder={idx => {
-        let color: ShapeStyle = "white"
-        if (idx === 0 || idx === 6) color = weekendColor
-        if (showCircle(idx)) color = "black"
-        return <ZStack key={idx} >
-          <Circle
-            fill="white"
-            hidden={!showCircle(idx)}
-          />
-          <Text
-            font={calandarFont}
-            bold={true}
-            monospacedDigit={true}
-            foregroundStyle={color}
-          >
-            {dates[start + idx]}
-          </Text>
-        </ZStack>
-      }}
-    />
+    {Array(7).fill(0).map((_, idx) => {
+      let color: ShapeStyle | DynamicShapeStyle = weekdayColor
+      if (idx === 0 || idx === 6) {
+        color = weekendColor
+      }
+      if (showCircle(idx)) {
+        color = reverseColor
+      }
+      return <ZStack key={idx} >
+        <Circle
+          fill={weekdayColor}
+          hidden={!showCircle(idx)}
+          padding={-1}
+        />
+        <Text
+          font={calandarFont}
+          bold={true}
+          monospacedDigit={true}
+          foregroundStyle={color}
+          allowsTightening={true}
+        >
+          {dates[start + idx]}
+        </Text>
+      </ZStack>
+    })}
   </GridRow>
 }
 
@@ -148,18 +163,15 @@ export function CalendarView({
     horizontalSpacing={3}
     verticalSpacing={0}
   >
-    <CalanderHeaderGridRow />
+    <CalendarHeaderGridRow />
     <Divider />
-    <ForEach
-      count={3}
-      itemBuilder={idx => {
-        return <CalanderGridRow
-          key={idx}
-          dates={dates}
-          today={today}
-          start={idx * 7}
-        />
-      }}
-    />
+    {Array(3).fill(0).map((_, idx) => (
+      <CalendarGridRow
+        key={idx}
+        dates={dates}
+        today={today}
+        start={idx * 7}
+      />
+    ))}
   </Grid>
 }
