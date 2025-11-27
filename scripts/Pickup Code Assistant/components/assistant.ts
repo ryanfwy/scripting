@@ -35,10 +35,15 @@ function validateAssistantResp(
 export async function requestAssistant(input: string | UIImage) {
   let data: Record<string, any>
   const prompt = getSetting("modelPrompt")
+  const options = getSetting("isModelDefault") === false ? {
+    provider: getSetting("modelProvider"),
+    modelId: getSetting("modelId")
+  } : undefined
   if (typeof input === "string") {
     data = await Assistant.requestStructuredData(
       `${prompt}\n${input}`,
-      schema
+      schema,
+      options
     )
   } else {
     const base64Data = input.toJPEGBase64String(0.5)
@@ -46,7 +51,8 @@ export async function requestAssistant(input: string | UIImage) {
     data = await Assistant.requestStructuredData(
       prompt,
       [base64Image],
-      schema
+      schema,
+      options
     )
   }
   validateAssistantResp(data)
