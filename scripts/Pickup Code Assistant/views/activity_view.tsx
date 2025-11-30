@@ -1,4 +1,4 @@
-import { Button, HStack, Image, Spacer, Text, VStack, ZStack, Link, Script, RoundedRectangle, Circle, ShapeStyle, DynamicShapeStyle, LiveActivityState, Capsule } from "scripting"
+import { Button, HStack, Image, Spacer, Text, VStack, ZStack, Link, Script, RoundedRectangle, Circle, ShapeStyle, LiveActivityState, Capsule, Color } from "scripting"
 import { ActivityFinishIntent } from "../app_intents"
 import { genThumbnailPath } from "../components/storage"
 import { getSetting } from "../components/setting"
@@ -22,10 +22,10 @@ const heightView = 100
 const widthImg = 40
 const heightImg = 70
 const stylePrimary: ShapeStyle = "label"
-const styleSecondary: ShapeStyle = "lightText"
-const styleSecondaryApp: DynamicShapeStyle = {
-  light: "darkText",
-  dark: "lightText"
+const styleSecondary: ShapeStyle = "secondaryLabel"
+const styleBackground: Color | { light: Color, dark: Color } = Device.systemVersion.match("26") ? "clear" : {
+  light: "rgba(255,255,255,0.5)",
+  dark: "rgba(0,0,0,0.5)"
 }
 const styleInactive = "systemGray"
 
@@ -54,7 +54,7 @@ export function LargeActivityView({
     }}
     frame={{ height: heightView }}
     alignment="center"
-    activityBackgroundTint={"clear"}
+    activityBackgroundTint={styleBackground}
   >
     <Link
       // activity 点击后启动 app 携带参数
@@ -134,7 +134,7 @@ export function LargeActivityView({
       {seller != null &&
         <Text
           font={"body"}
-          foregroundStyle={isShowInApp ? styleSecondaryApp : styleSecondary}
+          foregroundStyle={styleSecondary}
           allowsTightening={true}
           padding={{ bottom: 5 }}
         >
@@ -148,7 +148,7 @@ export function LargeActivityView({
     >
       <Text
         font={"footnote"}
-        foregroundStyle={isShowInApp ? styleSecondaryApp : styleSecondary}
+        foregroundStyle={styleSecondary}
       >
         {timestamp2time(timestamp, "dateTime")}
       </Text>
