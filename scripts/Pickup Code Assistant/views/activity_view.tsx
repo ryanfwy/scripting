@@ -11,7 +11,7 @@ const timestamp2time = (
   const date = new Date(timestamp)
   if (style === "time") return date.toLocaleTimeString()
   if (style === "date") return date.toLocaleDateString().match(/\d+\/\d+$/)
-  if (style ===  "dateTime") return date.toLocaleString().match(/\d+\/\d+ \d+:\d+/)
+  if (style === "dateTime") return date.toLocaleString().match(/\d+\/\d+ \d+:\d+/)
   if (style === "dateYear") return date.toLocaleDateString()
   return date.toLocaleString()
 }
@@ -131,14 +131,16 @@ export function LargeActivityView({
       >
         {code}
       </Text>
-      <Text
-        font={"body"}
-        foregroundStyle={isShowInApp ? styleSecondaryApp : styleSecondary}
-        allowsTightening={true}
-        padding={{ bottom: 5 }}
-      >
-        {seller}
-      </Text>
+      {seller != null &&
+        <Text
+          font={"body"}
+          foregroundStyle={isShowInApp ? styleSecondaryApp : styleSecondary}
+          allowsTightening={true}
+          padding={{ bottom: 5 }}
+        >
+          {seller}
+        </Text>
+      }
     </VStack>
     <Spacer />
     <VStack
@@ -165,7 +167,7 @@ export function LargeActivityView({
             fontWeight={"bold"}
           />
         </Button>
-        ) : (
+      ) : (
         <ZStack
           frame={{ width: 50, height: 30 }}
         >

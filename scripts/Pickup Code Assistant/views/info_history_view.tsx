@@ -7,8 +7,7 @@ import { haptic } from "../helper/haptic"
 
 export function HistoryList() {
   // activitys: context as history list setter
-  const runState = useContext(RunContext)
-  const { activitys } = runState
+  const { activitys } = useContext(RunContext)
 
   async function actionFlag(activity: Record<string, any>) {
     const { code, seller } = activity.content

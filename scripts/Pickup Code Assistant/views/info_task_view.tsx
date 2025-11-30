@@ -50,8 +50,7 @@ function PhotoView({
 
 export function TaskList() {
   // activitys: context as history list setter
-  const runState = useContext(RunContext)
-  const { from, activitys } = runState
+  const { from, activitys } = useContext(RunContext)
   const { observes, runTasks } = runTaskWithUI(from)
   const { photo, tasks, isLatestRunning, isPickRunning } = observes
   const showToast = useObservable<boolean>(false)
