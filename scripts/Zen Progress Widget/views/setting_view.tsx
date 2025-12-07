@@ -59,8 +59,12 @@ export function SettingView() {
     if (value === false) {
       saveSetting("birthdayTs", null)
       saveSetting("retireAge", null)
-      birthdayTs.setValue(getSetting("birthdayTs"))
-      retireAge.setValue(getSetting("retireAge"))
+    } else {
+      const birth = getSetting("birthdayTs")
+      const retire = getSetting("retireAge")
+      saveSetting("birthdayTs", birth)
+      birthdayTs.setValue(birth)
+      retireAge.setValue(retire)
     }
   }
 
@@ -85,9 +89,15 @@ export function SettingView() {
       saveSetting("customLabel", null)
       saveSetting("customStartTs", null)
       saveSetting("customEndTs", null)
-      customLabel.setValue(getSetting("customLabel"))
-      customStartTs.setValue(getSetting("customStartTs"))
-      customEndTs.setValue(getSetting("customEndTs"))
+    } else {
+      const start = getSetting("customStartTs")
+      const end = getSetting("customEndTs")
+      const label = getSetting("customLabel")
+      saveSetting("customStartTs", start)
+      saveSetting("customEndTs", end)
+      customLabel.setValue(label)
+      customStartTs.setValue(start)
+      customEndTs.setValue(end)
     }
   }
 
