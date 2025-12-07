@@ -42,17 +42,11 @@ const cfgTasks: TaskItem[] = [
     id: 3,
     title: "启动 LiveActivity",
     status: "idle",
-    func: async ({
-      code,
-      seller
-    }: {
-      code: string,
-      seller: string
-    }) => {
+    func: async (content: Record<string, any>) => {
       const activity = new ActivityBuilder()
       const timestamp = activity.timestamp
       await saveThumbnail(timestamp, photoGlobal)
-      return await activity.startActivity({ code, seller })
+      return await activity.startActivity(content)
     }
   },
 ]

@@ -18,7 +18,8 @@ const timestamp2time = (
 
 const sizeLogo = 16
 const offsetLogo = 3
-const heightView = 100
+const heightView = 90
+const heightViewMax = 115
 const widthImg = 40
 const heightImg = 70
 const stylePrimary: ShapeStyle = "label"
@@ -30,29 +31,29 @@ const styleBackground: Color | { light: Color, dark: Color } = Device.systemVers
 const styleInactive = "systemGray"
 
 export function LargeActivityView({
-  code,
-  seller,
+  content,
   timestamp,
   state = "active",
   isPadding = true,
   isShowInApp = false
 }: {
-  code: string,
-  seller: string,
+  content: Record<string, any>,
   timestamp: number,
   state?: LiveActivityState | null,
   isPadding?: boolean,
   isShowInApp?: boolean
 }) {
+  const { code, seller, items } = content
+  const height = Object.keys(content).length <= 2 ? heightView : heightViewMax
   return <HStack
     padding={isPadding ? {
       horizontal: 15,
-      vertical: 20
+      vertical: 10
     } : {
       horizontal: 0,
-      vertical: 20
+      vertical: 10
     }}
-    frame={{ height: heightView }}
+    frame={{ height: height }}
     alignment="center"
     activityBackgroundTint={styleBackground}
   >
@@ -127,24 +128,33 @@ export function LargeActivityView({
         fontDesign={"rounded"}
         fontWeight={"semibold"}
         foregroundStyle={stylePrimary}
-        allowsTightening={true}
+        padding={{ top: -5 }}
       >
         {code}
       </Text>
       {seller != null &&
         <Text
           font={"body"}
-          foregroundStyle={styleSecondary}
-          allowsTightening={true}
-          padding={{ bottom: 5 }}
+          foregroundStyle={stylePrimary}
+          lineLimit={1}
         >
           {seller}
+        </Text>
+      }
+      {items != null &&
+        <Text
+          font={"footnote"}
+          foregroundStyle={styleSecondary}
+          lineLimit={1}
+        >
+          {Array.isArray(items) ? items.join(" | ") : String(items)}
         </Text>
       }
     </VStack>
     <Spacer />
     <VStack
       alignment="trailing"
+      padding={{ vertical: 5 }}
     >
       <Text
         font={"footnote"}

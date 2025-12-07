@@ -10,7 +10,6 @@ export function HistoryList() {
   const { activitys } = useContext(RunContext)
 
   async function actionFlag(activity: Record<string, any>) {
-    const { code, seller } = activity.content
     const timestamp = activity.timestamp
     const activityId = activity.activityId
     // chceck status
@@ -18,7 +17,7 @@ export function HistoryList() {
     if (state === "active") return
     // start new activity
     const act = new ActivityBuilder(timestamp)
-    const resp = await act.startActivity({ code, seller })
+    const resp = await act.startActivity(activity.content)
     if (resp === false) return
     // remove old activity
     removeActivityWithId(activityId)
@@ -70,8 +69,7 @@ export function HistoryList() {
               </Group>
             }}
             transition={Transition.move("trailing").combined(Transition.opacity())}
-            code={item.activity.content.code}
-            seller={item.activity.content.seller}
+            content={item.activity.content}
             timestamp={item.activity.timestamp}
             state={item.state}
             isShowInApp={true}

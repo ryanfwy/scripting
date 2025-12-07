@@ -11,8 +11,17 @@ const schema: JSONSchemaObject = {
     seller: {
       type: "string",
       required: false,
-      description: "商家名称、商店名称、服务商或产品名称"
+      description: "商家名称、商店名称、门店名称、服务商"
     },
+    items: {
+      type: "array",
+      items: {
+        type: "string",
+        description: "商品名称、产品名称、快递地址"
+      },
+      required: false,
+      description: "商品名称、产品名称、快递地址"
+    }
   },
   description: ""
 }

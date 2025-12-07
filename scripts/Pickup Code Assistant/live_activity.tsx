@@ -5,8 +5,7 @@ import { debugWithStorage } from "./helper/debug"
 
 const activityName = "PickupCodeAssistantActivity"
 export type State = {
-  code: string,
-  seller: string,
+  content: Record<string, any>,
   timestamp: number
 }
 
@@ -15,8 +14,7 @@ function buildActivity() {
     return <LiveActivityUI
       content={
         <LargeActivityView
-          code={state.code}
-          seller={state.seller}
+          content={state.content}
           timestamp={state.timestamp} 
         />
       }
@@ -24,7 +22,9 @@ function buildActivity() {
         <MiniActivityViewLeading />
       }
       compactTrailing={
-        <MiniActivityViewTrailing code={state.code} />
+        <MiniActivityViewTrailing
+          code={state.content.code}
+        />
       }
       minimal={
         <MiniActivityViewLeading />
@@ -32,8 +32,7 @@ function buildActivity() {
     >
       <LiveActivityUIExpandedCenter>
         <LargeActivityView
-          code={state.code}
-          seller={state.seller}
+          content={state.content}
           timestamp={state.timestamp} 
           isPadding={false}
         />
@@ -86,17 +85,11 @@ export class ActivityBuilder {
     this.activity = PickupCodeActivity()
   }
 
-  async startActivity({
-    code,
-    seller
-  }: {
-    code: string,
-    seller: string
-  }) {
+  async startActivity(content: Record<string, any>) {
     let status = false
     if (this.activity == null) return status
     status = await this.activity.start({
-      code, seller,
+      content,
       timestamp: this.timestamp
     }, {
       relevanceScore: Date.now()
@@ -111,7 +104,7 @@ export class ActivityBuilder {
       saveActivity({
         activityId,
         timestamp,
-        content: { code, seller }
+        content
       })
     }
     return timestamp

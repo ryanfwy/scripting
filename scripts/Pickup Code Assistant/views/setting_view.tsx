@@ -105,15 +105,16 @@ export function SettingView() {
       description: ""
     }
     modelCheck.setValue(false)
+    const options = !isModelDefault.value ? {
+      provider: modelProvider.value,
+      modelId: modelID.value
+    } : undefined
     let message = ""
     try {
       const resp = await Assistant.requestStructuredData(
         "请返回「检查成功！」并随机附上一段很美的句子",
         schema,
-        {
-          provider: modelProvider.value,
-          modelId: modelID.value
-        }
+        options
       ) as Record<string, string>
       message = resp?.text
     }
@@ -272,14 +273,12 @@ export function SettingView() {
             />
           </HStack>
         )}
-        {!isModelDefault.value && (
-          <Button
-            title={"检查模型可用性"}
-            tint={systemColor.value}
-            disabled={!modelCheck.value}
-            action={checkModelAvailable}
-          />
-        )}
+        <Button
+          title={"检查模型可用性"}
+          tint={systemColor.value}
+          disabled={!modelCheck.value}
+          action={checkModelAvailable}
+        />
       </Section>
       <Section
         header={
